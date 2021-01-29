@@ -8,9 +8,16 @@ allsubs=load('ts_GSR_shen268_allsub_allsess.mat');
 allsubs=allsubs.allsubs;
 allsubs_fmri=reshape(allsubs, [1 235]);
 
+
 %% Determine the optimal number of clusters using variance explained
 allsubs_fmri=allsubs_fmri(find(~cellfun(@isempty,allsubs_fmri)))
 allsubs_fmri=allsubs_fmri';
+
+numscans1_11=[4 3 3 3 3 3 3 3 3 3 3;4 3 3 3 3 3 3 4 3 3 3;3 3 3 3 3 3 3 3 3 3 3;4 4 3 3 3 3 3 3 3 3 3 ; 3 3 3 3 3 0 3 3 3 3 3];
+numscans12_23=[3 3 3 3 3 2 2 2 2 2 2 2; 3 3 3 4 3 2 2 2 2 2 2 2 ;3 3 3 3 3 2 2 2 0 2 2 2;0 3 3 3 3 2 2 2 0 2 2 2;0 3 4 3 3 2 2 2 0 2 2 2];
+nscans = [numscans1_11, numscans12_23];
+nscan = ones(5, 24)+4;
+nscans = [nscans, nscan];
 
 np= [];
 
@@ -21,6 +28,7 @@ for i=1:229
     b=b(4:173,:);
     np=[np;b];
 end
+size(b)
 
 distanceMethod= 'sqeuclidean'
 nreps = 50;
@@ -44,14 +52,17 @@ centroids = GET_CENTROIDS(np,cluster_output(:,best_number_of_clusters),best_numb
 clusterNames = [1:6];
 
 f = figure;
-imagesc(centroids); title('Centroids'); xticks(1:numClusters); xticklabels(clusterNames);
-colormap('parula'); axis square; colorbar; set(gca,'FontSize',12); COLOR_TICK_LABELS(true,false,numClusters);
+imagesc(centroids); title('Centroids'); xticks(1:best_number_of_clusters); xticklabels(clusterNames);
+colormap('parula'); axis square; colorbar; set(gca,'FontSize',12); COLOR_TICK_LABELS(true,false,best_number_of_clusters);
 
 xticklabels(clusterNames); yticklabels(clusterNames); xtickangle(90);
-COLOR_TICK_LABELS(true,true,numClusters);
+COLOR_TICK_LABELS(true,true,best_number_of_clusters);
 f.PaperUnits = 'inches';
 f.PaperSize = [10 10];
 f.PaperPosition = [0 0 4 2];
+
+%% visualize clusters on brain
+visualise_kmeans(centroids)
 
 %% once the number of clusters is determined, find the partition that best represents your clustering (i.e. is most similar to every other randomly initialized clustering)
 numClusters = best_number_of_clusters;
@@ -85,19 +96,23 @@ saveas(f,fullfile(savedir,['AMI_k',num2str(numClusters),'.pdf']));
 
 
 %% count number of each cluster per scan
-A=reshape(partition,146,[]);
-count = zeros(numClusters,47);
+partition=parts;
+clear A
+A(:,1)=partition(1:47)
+A(:,2)=partition(48:94)
+A(:,3)=[partition(95:114);0;partition(115:140)]
+A(:,4)=[partition(141:152);0;partition(153:159);0;partition(160:185)]
+A(:,5)=[partition(186:191);0;partition(192:196);0;partition(197:203);0;partition(204:229)]
 
-for b=1:47
-    [count(:,b),~] = hist(A(:,b),1:numClusters);
+
+count = zeros(4,47);
+for b=1:170
+    [count(:,b),~] = hist(A(:,b),1:4);
 end
-
-%for all longitudinal scans
-A=reshape(partition,146,[]);
-
-for b=1:115
-    [count_longitudinal(:,b),~] = hist(A(:,b),1:2);
-end
+%% Calculate Fractional Occupancy
+TR=146;
+stroke=count(:,1:23); 
+stroke_FO = stroke/TR;
 
 %% Calculate Fractional Occupancy
 TR=146;
