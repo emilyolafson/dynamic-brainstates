@@ -1192,19 +1192,14 @@ set(gca, 'FontSize', 15)
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
 %% Severe vs moderate stroke subjects
-idx_severe=baselineFM > 65
-idx_mod=baselineFM <= 65
-sev=sum(idx_severe)
-mod=sum(idx_mod)
-
-idx_severe=fm_5>90
-idx_mod=fm_5<=90
+idx_severe=baselineFM > 50
+idx_mod=baselineFM <= 50
 sev=sum(idx_severe)
 mod=sum(idx_mod)
 
 
 %% Fractional occupancy - moderate to severe
-
+% across all sessions
 severe_FO1=stroke_FO1(idx_severe,:)
 mod_FO1=stroke_FO1(idx_mod,:)
 severe_FO2=stroke_FO2(idx_severe,:)
@@ -1231,10 +1226,10 @@ set(gcf, 'Position', [0 0 1000 1000])
 [h, p(3), ~, ~]=ttest2(reshape(severe_FO3(:,:),[],1), reshape(mod_FO3(:,:), [],1))
 [h, p(4), ~, ~]=ttest2(reshape(severe_FO4(:,:),[],1), reshape(mod_FO4(:,:), [],1))
 
-% dwell time
+
 
 %% Dwell time - moderate vs severe
-
+% across single sessions
 severe_FO1=dwell_avg_stroke(idx_severe,:,1)
 mod_FO1=dwell_avg_stroke(idx_mod,:,1)
 severe_FO2=dwell_avg_stroke(idx_severe,:,2)
@@ -1244,25 +1239,26 @@ mod_FO3=dwell_avg_stroke(idx_mod,:,3)
 severe_FO4=dwell_avg_stroke(idx_severe,:,4)
 mod_FO4=dwell_avg_stroke(idx_mod,:,4)
 
-ids=[zeros(1,sev), ones(1,mod)]
+%across all sessions
+ids=[zeros(1,50), ones(1,65)]
 tiledlayout(2,2,'padding', 'none')
 nexttile;
-violinplot([severe_FO1(:,1);mod_FO1(:,1)],ids)
+violinplot([reshape(severe_FO1(:,:),[],1);reshape(mod_FO1(:,:), [],1)],ids)
 nexttile;
-violinplot([severe_FO2(:,1);mod_FO2(:,1)],ids)
+violinplot([reshape(severe_FO2(:,:),[],1);reshape(mod_FO2(:,:), [],1)],ids)
 nexttile;
-violinplot([severe_FO3(:,1);mod_FO3(:,1)],ids)
+violinplot([reshape(severe_FO3(:,:),[],1);reshape(mod_FO3(:,:), [],1)],ids)
 nexttile;
-violinplot([severe_FO4(:,1);mod_FO4(:,1)],ids)
+violinplot([reshape(severe_FO4(:,:),[],1);reshape(mod_FO4(:,:), [],1)],ids)
 set(gcf, 'Position', [0 0 1000 1000])
 
-[h, p, ~, ~]=ttest2(severe_FO1(:,1), mod_FO1(:,1))
-[h, p, ~, ~]=ttest2(severe_FO2(:,1), mod_FO2(:,1))
-[h, p, ~, ~]=ttest2(severe_FO3(:,1), mod_FO3(:,1))
-[h, p, ~, ~]=ttest2(severe_FO4(:,1), mod_FO4(:,1))
+[h, p(1), ~, ~]=ttest2(reshape(severe_FO1(:,:),[],1), reshape(mod_FO1(:,:), [],1))
+[h, p(2), ~, ~]=ttest2(reshape(severe_FO2(:,:),[],1), reshape(mod_FO2(:,:), [],1))
+[h, p(3), ~, ~]=ttest2(reshape(severe_FO3(:,:),[],1), reshape(mod_FO3(:,:), [],1))
+[h, p(4), ~, ~]=ttest2(reshape(severe_FO4(:,:),[],1), reshape(mod_FO4(:,:), [],1))
 
 %% Appearance rate - moderate vs severe
-
+% across single sessions
 severe_FO1=stroke_appearance1(idx_severe,:)
 mod_FO1=stroke_appearance1(idx_mod,:)
 severe_FO2=stroke_appearance2(idx_severe,:)
@@ -1289,8 +1285,53 @@ set(gcf, 'Position', [0 0 1000 1000])
 [h, p, ~, ~]=ttest2(severe_FO3(:,1), mod_FO3(:,1))
 [h, p, ~, ~]=ttest2(severe_FO4(:,1), mod_FO4(:,1))
 
+% across all sessions
+ids=[zeros(1,50), ones(1,65)]
+tiledlayout(1,4,'padding', 'none')
+nexttile;
+viol=violinplot([reshape(severe_FO1(:,:),[],1);reshape(mod_FO1(:,:), [],1)],ids)
+viol(1).ViolinColor=[0.4 0.4 0.8]
+viol(2).ViolinColor=[1 0.4 0.4]
+ylim([1, 5])
+title('State 1')
+xticklabels({"Severe", "Moderate"})
+nexttile;
 
-%% fractional occupancy - session-specific comparison
+viol=violinplot([reshape(severe_FO2(:,:),[],1);reshape(mod_FO2(:,:), [],1)],ids)
+viol(1).ViolinColor=[0.4 0.4 0.8]
+viol(2).ViolinColor=[1 0.4 0.4]
+ylim([1, 5])
+title('State 2')
+xticklabels({"Severe", "Moderate"})
+
+nexttile;
+
+viol=violinplot([reshape(severe_FO3(:,:),[],1);reshape(mod_FO3(:,:), [],1)],ids)
+viol(1).ViolinColor=[0.4 0.4 0.8]
+viol(2).ViolinColor=[1 0.4 0.4]
+ylim([1, 5])
+title('State 3')
+xticklabels({"Severe", "Moderate"})
+
+nexttile;
+
+viol=violinplot([reshape(severe_FO4(:,:),[],1);reshape(mod_FO4(:,:), [],1)],ids)
+viol(1).ViolinColor=[0.4 0.4 0.8]
+viol(2).ViolinColor=[1 0.4 0.4]
+ylim([1, 5])
+title('State 4')
+xticklabels({"Severe", "Moderate"})
+
+set(gcf, 'Position', [0 0 1000 1000])
+
+[h, p(1), ~, ~]=ttest2(reshape(severe_FO1(:,:),[],1), reshape(mod_FO1(:,:), [],1))
+[h, p(2), ~, ~]=ttest2(reshape(severe_FO2(:,:),[],1), reshape(mod_FO2(:,:), [],1))
+[h, p(3), ~, ~]=ttest2(reshape(severe_FO3(:,:),[],1), reshape(mod_FO3(:,:), [],1))
+[h, p(4), ~, ~]=ttest2(reshape(severe_FO4(:,:),[],1), reshape(mod_FO4(:,:), [],1))
+
+[h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
+
+%% Fractional occupancy - session-specific comparison
 ids=[zeros(1,23), ones(1,24)]
 tiledlayout(2,2,'padding', 'none')
 nexttile;
@@ -1306,7 +1347,6 @@ violinplot([stroke_FO4(:,1);control_FO4(:,1)],ids)
 [h,p(2),~,~]=ttest2(stroke_FO2(:,1),control_FO2(:,1))
 [h,p(3),~,~]=ttest2(stroke_FO3(:,1),control_FO3(:,1))
 [h,p(4),~,~]=ttest2(stroke_FO4(:,1),control_FO4(:,1))
-
 
 % plot session w sig diffs
 close all;
@@ -1488,7 +1528,7 @@ ylabel('Fractional Occupancy')
 
 %% relationship to impairment and recovery
 
-%amount of reduction over 5 months in state 1 corr with recovery?
+% load motor scores
 fm_dir=strcat('/Users/emilyolafson/GIT/stroke-graph-matching/data/');
 fuglmeyer=readtable(strcat(fm_dir, 'fuglmeyer_allpts.csv'));
 fm_1=fuglmeyer.Var2;
@@ -1505,7 +1545,7 @@ fm_4(20)=NaN;
 fm_5(20)=NaN;
 fm_5(6)=NaN;
 
-% state parameters (DT, FO) and impairment
+%% Fractional Occupancy- related to impairment at same scan
 
 [rho, p(1)]=corr(stroke_FO1(:,1), fm_1, 'rows', 'complete')
 [rho, p(2)]=corr(stroke_FO2(:,1), fm_1, 'rows', 'complete')
@@ -1543,31 +1583,165 @@ fo_23=stroke_FO1(:,3)-stroke_FO1(:,2);
 fo_34=stroke_FO1(:,4)-stroke_FO1(:,3);
 fo_45=stroke_FO1(:,5)-stroke_FO1(:,4);
 
+[rho,p(1)]=corr(fm12, fo_12, 'rows', 'complete')
+[rho,p(2)]=corr(fm23, fo_23, 'rows', 'complete')
+[rho,p(3)]=corr(fm34, fo_34, 'rows', 'complete')
+[rho,p(4)]=corr(fm45, fo_45, 'rows', 'complete')
+
+%%  Dwell time - related to impairment at same scan
+[rho, p(1)]=corr(dwell_avg_stroke(:,1,1), fm_1, 'rows', 'complete')
+[rho, p(2)]=corr(dwell_avg_stroke(:,1,2), fm_1, 'rows', 'complete')
+[rho, p(3)]=corr(dwell_avg_stroke(:,1,3), fm_1, 'rows', 'complete')
+[rho, p(4)]=corr(dwell_avg_stroke(:,1,4), fm_1, 'rows', 'complete')
+
+[rho, p(5)]=corr(dwell_avg_stroke(:,2,1), fm_2, 'rows', 'complete')
+[rho, p(6)]=corr(dwell_avg_stroke(:,2,2), fm_2, 'rows', 'complete')
+[rho, p(7)]=corr(dwell_avg_stroke(:,2,3), fm_2, 'rows', 'complete')
+[rho, p(8)]=corr(dwell_avg_stroke(:,2,4), fm_2, 'rows', 'complete')
+
+[rho, p(9)]=corr(dwell_avg_stroke(:,3,1), fm_3, 'rows', 'complete')
+[rho, p(10)]=corr(dwell_avg_stroke(:,3,2), fm_3, 'rows', 'complete')
+[rho, p(11)]=corr(dwell_avg_stroke(:,3,3), fm_3, 'rows', 'complete')
+[rho, p(12)]=corr(dwell_avg_stroke(:,3,4), fm_3, 'rows', 'complete')
+
+[rho, p(13)]=corr(dwell_avg_stroke(:,4,1), fm_4, 'rows', 'complete')
+[rho, p(14)]=corr(dwell_avg_stroke(:,4,2), fm_4, 'rows', 'complete')
+[rho, p(15)]=corr(dwell_avg_stroke(:,4,3), fm_4, 'rows', 'complete')
+[rho, p(16)]=corr(dwell_avg_stroke(:,4,4), fm_4, 'rows', 'complete')
+
+[rho, p(17)]=corr(dwell_avg_stroke(:,5,1), fm_5, 'rows', 'complete')
+[rho, p(18)]=corr(dwell_avg_stroke(:,5,2), fm_5, 'rows', 'complete')
+[rho, p(19)]=corr(dwell_avg_stroke(:,5,3), fm_5, 'rows', 'complete')
+[rho, p(20)]=corr(dwell_avg_stroke(:,5,4), fm_5, 'rows', 'complete')
+
+%state 1
 dt12=dwell_avg_stroke(:,2,1)-dwell_avg_stroke(:,1,1)
 dt23=dwell_avg_stroke(:,3,1)-dwell_avg_stroke(:,2,1)
 dt34=dwell_avg_stroke(:,4,1)-dwell_avg_stroke(:,3,1)
 dt45=dwell_avg_stroke(:,5,1)-dwell_avg_stroke(:,4,1)
+
+clear p
+[rho,p(1)]=corr(fm12, dt12, 'rows', 'complete')
+[rho,p(2)]=corr(fm23, dt23, 'rows', 'complete')
+[rho,p(3)]=corr(fm34, dt34, 'rows', 'complete')
+[rho,p(4)]=corr(fm45, dt45, 'rows', 'complete')
+
+% state 2
+dt12=dwell_avg_stroke(:,2,2)-dwell_avg_stroke(:,1,2)
+dt23=dwell_avg_stroke(:,3,2)-dwell_avg_stroke(:,2,2)
+dt34=dwell_avg_stroke(:,4,2)-dwell_avg_stroke(:,3,2)
+dt45=dwell_avg_stroke(:,5,2)-dwell_avg_stroke(:,4,2)
+
+clear p
+[rho,p(1)]=corr(fm12, dt12, 'rows', 'complete')
+[rho,p(2)]=corr(fm23, dt23, 'rows', 'complete')
+[rho,p(3)]=corr(fm34, dt34, 'rows', 'complete')
+[rho,p(4)]=corr(fm45, dt45, 'rows', 'complete')
+
+% state 3
+dt12=dwell_avg_stroke(:,2,3)-dwell_avg_stroke(:,1,3)
+dt23=dwell_avg_stroke(:,3,3)-dwell_avg_stroke(:,2,3)
+dt34=dwell_avg_stroke(:,4,3)-dwell_avg_stroke(:,3,3)
+dt45=dwell_avg_stroke(:,5,3)-dwell_avg_stroke(:,4,3)
+
+clear p
+[rho,p(1)]=corr(fm12, dt12, 'rows', 'complete', 'Type', 'Spearman')
+[rho,p(2)]=corr(fm23, dt23, 'rows', 'complete')
+[rho,p(3)]=corr(fm34, dt34, 'rows', 'complete')
+[rho,p(4)]=corr(fm45, dt45, 'rows', 'complete')
+
+close all
+figure()
+scatter(fm12, dt12, 'ok', 'filled')
+xlabel('Change in Fugl-Meyer scores 1-2 weeks post-stroke')
+ylabel('Change in State 3 dwell time 1-2 weeks post-stroke')
+text(30, -0.4, 'Corr = 0.53, p = 0.013 (unc)', 'FontSize', 14)
+set(gca, 'FontSize', 14)
+lsline
+title('State 3 change in dwell time vs. change in FM')
+[h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
+
+% state 4
+dt12=dwell_avg_stroke(:,2,4)-dwell_avg_stroke(:,1,4)
+dt23=dwell_avg_stroke(:,3,4)-dwell_avg_stroke(:,2,4)
+dt34=dwell_avg_stroke(:,4,4)-dwell_avg_stroke(:,3,4)
+dt45=dwell_avg_stroke(:,5,4)-dwell_avg_stroke(:,4,4)
+
+clear p
+[rho,p(1)]=corr(fm12, dt12, 'rows', 'complete')
+[rho,p(2)]=corr(fm23, dt23, 'rows', 'complete')
+[rho,p(3)]=corr(fm34, dt34, 'rows', 'complete')
+[rho,p(4)]=corr(fm45, dt45, 'rows', 'complete')
+
+%% Appearance rate
+clear p
+[rho, p(1)]=corr(stroke_appearance1(:,1), fm_1, 'rows', 'complete')
+[rho, p(2)]=corr(stroke_appearance2(:,1), fm_1, 'rows', 'complete')
+[rho, p(3)]=corr(stroke_appearance3(:,1), fm_1, 'rows', 'complete')
+[rho, p(4)]=corr(stroke_appearance4(:,1), fm_1, 'rows', 'complete')
+
+[rho, p(5)]=corr(stroke_appearance1(:,2), fm_2, 'rows', 'complete')
+[rho, p(6)]=corr(stroke_appearance2(:,2), fm_2, 'rows', 'complete')
+[rho, p(7)]=corr(stroke_appearance3(:,2), fm_2, 'rows', 'complete')
+[rho, p(8)]=corr(stroke_appearance4(:,2), fm_2, 'rows', 'complete')
+
+[rho, p(9)]=corr(stroke_appearance1(:,3), fm_3, 'rows', 'complete')
+[rho, p(10)]=corr(stroke_appearance2(:,3), fm_3, 'rows', 'complete')
+[rho, p(11)]=corr(stroke_appearance3(:,3), fm_3, 'rows', 'complete')
+[rho, p(12)]=corr(stroke_appearance4(:,3), fm_3, 'rows', 'complete')
+
+[rho, p(13)]=corr(stroke_appearance1(:,4), fm_4, 'rows', 'complete')
+[rho, p(14)]=corr(stroke_appearance2(:,4), fm_4, 'rows', 'complete')
+[rho, p(15)]=corr(stroke_appearance3(:,4), fm_4, 'rows', 'complete')
+[rho, p(16)]=corr(stroke_appearance4(:,4), fm_4, 'rows', 'complete')
+
+[rho, p(17)]=corr(stroke_appearance1(:,5), fm_5, 'rows', 'complete')
+[rho, p(18)]=corr(stroke_appearance2(:,5), fm_5, 'rows', 'complete')
+[rho, p(19)]=corr(stroke_appearance3(:,5), fm_5, 'rows', 'complete')
+[rho, p(20)]=corr(stroke_appearance4(:,5), fm_5, 'rows', 'complete')
+
+% diff in parameters related to change in fm score?
+fm12=fm_2-fm_1;
+fm23=fm_3-fm_2
+fm34=fm_4-fm_3;
+fm45=fm_5-fm_4;
+
+clear p
+fo_12=stroke_appearance1(:,2)-stroke_appearance1(:,1);
+fo_23=stroke_appearance1(:,3)-stroke_appearance1(:,2);
+fo_34=stroke_appearance1(:,4)-stroke_appearance1(:,3);
+fo_45=stroke_appearance1(:,5)-stroke_appearance1(:,4);
 
 [rho,p(1)]=corr(fm12, fo_12, 'rows', 'complete')
 [rho,p(2)]=corr(fm23, fo_23, 'rows', 'complete')
 [rho,p(3)]=corr(fm34, fo_34, 'rows', 'complete')
 [rho,p(4)]=corr(fm45, fo_45, 'rows', 'complete')
 
-% dwell
-[rho,p(1)]=corr(fm12, dt12, 'rows', 'complete')
-[rho,p(2)]=corr(fm23, dt23, 'rows', 'complete')
-[rho,p(3)]=corr(fm34, dt34, 'rows', 'complete')
-[rho,p(4)]=corr(fm45, dt45, 'rows', 'complete')
+clear p
+fo_12=stroke_appearance2(:,2)-stroke_appearance2(:,1);
+fo_23=stroke_appearance2(:,3)-stroke_appearance2(:,2);
+fo_34=stroke_appearance2(:,4)-stroke_appearance2(:,3);
+fo_45=stroke_appearance2(:,5)-stroke_appearance2(:,4);
 
-[rho,p(1)]=corr(fm23, fo_12, 'rows', 'complete')
-[rho,p(2)]=corr(fm34, fo_23, 'rows', 'complete')
-[rho,p(3)]=corr(fm45, fo_34, 'rows', 'complete')
+[rho,p(1)]=corr(fm12, fo_12, 'rows', 'complete')
+[rho,p(2)]=corr(fm23, fo_23, 'rows', 'complete')
+[rho,p(3)]=corr(fm34, fo_34, 'rows', 'complete')
 [rho,p(4)]=corr(fm45, fo_45, 'rows', 'complete')
 
 
-fm15=fm_5-fm_1
-[rho,p]=corr(fm15, fo_12, 'rows', 'complete')
-[rho,p]=corr(fm15, dt12, 'rows', 'complete')
+clear p
+fo_12=stroke_appearance3(:,2)-stroke_appearance3(:,1);
+fo_23=stroke_appearance3(:,3)-stroke_appearance3(:,2);
+fo_34=stroke_appearance3(:,4)-stroke_appearance3(:,3);
+fo_45=stroke_appearance3(:,5)-stroke_appearance3(:,4);
+
+[rho,p(1)]=corr(fm12, fo_12, 'rows', 'complete')
+[rho,p(2)]=corr(fm23, fo_23, 'rows', 'complete')
+[rho,p(3)]=corr(fm34, fo_34, 'rows', 'complete')
+[rho,p(4)]=corr(fm45, fo_45, 'rows', 'complete')
+
+
+
 
 % difference relative to controls correlated with recovery/impairment?
 avgctl=mean(control_FO1(:,:),2)
@@ -1627,39 +1801,7 @@ zscoretst4=(dwell_avg_stroke(:,1,state)-meanctl*ones(23,1))./stdctl
 [rho,p]=corr(zscoretst3, fm_5, 'rows', 'complete')
 [rho,p]=corr(zscoretst4, fm_5, 'rows', 'complete')
 
-%% stroke sess 1 vs sess 5 vs control
 
-% stroke sess 1 vs control
-[h, p1c(1), ci, stats]=ttest2(dwell_avg_stroke(:,1,1),dwell_avg_control(:,1,1))
-[h, p1c(2), ci, stats]=ttest2(dwell_avg_stroke(:,1,2),dwell_avg_control(:,1,2))
-[h, p1c(3), ci, stats]=ttest2(dwell_avg_stroke(:,1,3),dwell_avg_control(:,1,3))
-[h, p1c(4), ci, stats]=ttest2(dwell_avg_stroke(:,1,4),dwell_avg_control(:,1,4))
 
-% stroke sess 1 vs control
-[h, p2c(1), ci, stats]=ttest2(dwell_avg_stroke(:,2,1),dwell_avg_control(:,2,1))
-[h, p2c(2), ci, stats]=ttest2(dwell_avg_stroke(:,2,2),dwell_avg_control(:,2,2))
-[h, p2c(3), ci, stats]=ttest2(dwell_avg_stroke(:,2,3),dwell_avg_control(:,2,3))
-[h, p2c(4), ci, stats]=ttest2(dwell_avg_stroke(:,2,4),dwell_avg_control(:,2,4))
-
-% stroke sess 1 vs control
-[h, p3c(1), ci, stats]=ttest2(dwell_avg_stroke(:,3,1),dwell_avg_control(:,3,1))
-[h, p3c(2), ci, stats]=ttest2(dwell_avg_stroke(:,3,2),dwell_avg_control(:,3,2))
-[h, p3c(3), ci, stats]=ttest2(dwell_avg_stroke(:,3,3),dwell_avg_control(:,3,3))
-[h, p3c(4), ci, stats]=ttest2(dwell_avg_stroke(:,3,4),dwell_avg_control(:,3,4))
-
-% stroke sess 1 vs control
-[h, p4c(1), ci, stats]=ttest2(dwell_avg_stroke(:,4,1),dwell_avg_control(:,4,1))
-[h, p4c(2), ci, stats]=ttest2(dwell_avg_stroke(:,4,2),dwell_avg_control(:,4,2))
-[h, p4c(3), ci, stats]=ttest2(dwell_avg_stroke(:,4,3),dwell_avg_control(:,4,3))
-[h, p4c(4), ci, stats]=ttest2(dwell_avg_stroke(:,4,4),dwell_avg_control(:,4,4))
-[h, ~, ~, p_adj] = fdr_bh(p4c, 0.05,'pdep')
-
-% stroke sess 5 vs control
-[h, p5c(1), ci, stats]=ttest2(dwell_avg_stroke(:,5,1),dwell_avg_control(:,5,1))
-[h, p5c(2), ci, stats]=ttest2(dwell_avg_stroke(:,5,2),dwell_avg_control(:,5,2))
-[h, p5c(3), ci, stats]=ttest2(dwell_avg_stroke(:,5,3),dwell_avg_control(:,5,3))
-[h, p5c(4), ci, stats]=ttest2(dwell_avg_stroke(:,5,4),dwell_avg_control(:,5,4))
-
-[h, ~, ~, p_adj] = fdr_bh(p5c, 0.05,'pdep')
 
 
