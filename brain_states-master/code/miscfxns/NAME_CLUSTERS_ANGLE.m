@@ -10,7 +10,7 @@ function [clusterNames,reorderClusters,clusterNamesSort,net7angle] = NAME_CLUSTE
 if nparc > 400
     load('data/yeo7netlabelsLaus250.mat'); network7labels = network7labels(1:nparc);
 else
-    load('data/yeo7netlabelsLaus125.mat'); network7labels = network7labels(1:nparc);
+    load('networklabels.mat'); network7labels = networks_net(1:nparc);
 end
 
 numNets = 7;
