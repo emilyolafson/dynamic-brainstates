@@ -6,7 +6,7 @@ resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
 % FO differences across all sessions, stroke and controls;
 % mean over time
 close all;
-
+clear p
 figure('Position', [0 0 900 300])
 idx=[zeros(23, 1); ones(24,1); ...
     ones(23, 1)*2; ones(24,1)*3;...

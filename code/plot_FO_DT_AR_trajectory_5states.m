@@ -5,8 +5,10 @@ resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
 
 %% Fractional occupancy
 idx=[ones(23,1); ones(23,1)*2;ones(23,1)*3;ones(23,1)*4;ones(23,1)*5];
-tiledlayout(1,4,'padding','none')
+close all;
 
+figure('Position', [0 0 900 300])
+tiledlayout(1,4,'padding','none')
 
 nexttile;
 viol=violinplot([stroke_FO1(:,1);stroke_FO1(:,2);stroke_FO1(:,3);stroke_FO1(:,4);stroke_FO1(:,5)], idx)
@@ -56,8 +58,12 @@ viol(5).ViolinColor=[0.15 0.15 1]
 
 ylabel('Fractional Occupancy')
 
+saveas(gcf,strcat(figdir, 'FO_5statetrajectory_stroke.png'))
 
 %% Dwell time
+close all;
+
+figure('Position', [0 0 900 300])
 idx=[ones(23,1); ones(23,1)*2;ones(23,1)*3;ones(23,1)*4;ones(23,1)*5];
 tiledlayout(1,4,'padding','none')
 for i=1:4
@@ -73,9 +79,12 @@ for i=1:4
     p1=plot(mean([dwell_avg_stroke(:,1,i),dwell_avg_stroke(:,2,i),dwell_avg_stroke(:,3,i),dwell_avg_stroke(:,4,i),dwell_avg_stroke(:,5,i)], 'omitnan')','b-' ,'LineWidth',3)
     ylim([0 4])
 end
+saveas(gcf,strcat(figdir, 'DT_5statetrajectory_stroke.png'))
 
 %% Appearance rate
+close all;
 
+figure('Position', [0 0 900 300])
 idx=[ones(23,1); ones(23,1)*2;ones(23,1)*3;ones(23,1)*4;ones(23,1)*5];
 tiledlayout(1,4,'padding','none')
 
@@ -130,3 +139,6 @@ viol(5).ViolinColor=[0.15 0.15 1]
 plot(mean([stroke_appearance4(:,1),stroke_appearance4(:,2),stroke_appearance4(:,3),stroke_appearance4(:,4),stroke_appearance4(:,5)], 'omitnan')', '-b', 'LineWidth', 3)
 ylabel('Appearance Rate')
 ylim([0 4.5])
+saveas(gcf,strcat(figdir, 'AR_5statetrajectory_stroke.png'))
+
+
