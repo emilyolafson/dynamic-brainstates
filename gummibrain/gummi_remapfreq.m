@@ -11,8 +11,8 @@ function gummi_remapfreq(remapfreq, results_dir, title)
     cmap=colormap(plasma)
     save('/Users/emilyolafson/GIT/dynamic-brainstates/zscore_june11/centroids.mat', 'centroids')
     clc;
-    results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/zscore_4states'
-    for i=1:4
+    results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/zscore_5states'
+    for i=1:5
         close all;
         %cc400_data needs to be a 1x392 vector
         %shen368 needs to be 1x268
