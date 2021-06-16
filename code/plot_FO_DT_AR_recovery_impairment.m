@@ -1,5 +1,9 @@
 %% relationship to impairment and recovery
 
+figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/figures/'
+resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+
+
 % load motor scores
 fm_dir=strcat('/Users/emilyolafson/GIT/stroke-graph-matching/data/');
 fuglmeyer=readtable(strcat(fm_dir, 'fuglmeyer_allpts.csv'));

@@ -1,6 +1,12 @@
+
+figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/figures/'
+resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+
 %% Analysis - Fractional occupancy and dwell time between stroke & control
 % FO differences across all sessions, stroke and controls;
 % mean over time
+close all;
+
 figure('Position', [0 0 900 300])
 idx=[zeros(23, 1); ones(24,1); ...
     ones(23, 1)*2; ones(24,1)*3;...
@@ -27,6 +33,7 @@ xticks(1:2:12)
 xticklabels({'State 1','State 2','State 3', 'State 4'})
 set(gca, 'FontSize', 15)
 
+
 [h, p(1), ci, stats]=ttest2(mean(stroke_FO1, 2, 'omitnan'),mean(control_FO1, 2))
 [h, p(2), ci, stats]=ttest2(mean(stroke_FO2,  2, 'omitnan'),mean(control_FO2, 2))
 [h, p(3), ci, stats]=ttest2(mean(stroke_FO3,  2, 'omitnan'),mean(control_FO3, 2))
@@ -34,8 +41,12 @@ set(gca, 'FontSize', 15)
 
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
-%% Dwell time differences across all sessions, stroke and controls;
+save(strcat(resdir, 'p_adjusted_Timeavg_FO_stroke_vs_control.mat', 'p_adj'))
+save(strcat(resdir, 'p_unc_Timeavg_FO_stroke_vs_control.mat', 'p'))
+saveas(gcf,strcat(figdir, 'FO_Timeavg_stroke_vs_control.png'))
 
+%% Dwell time differences across all sessions, stroke and controls;
+close all;
 % mean over time
 figure('Position', [0 0 900 300])
 idx=[zeros(23, 1); ones(24,1); ...
@@ -71,8 +82,12 @@ ylabel('Dwell time (TRs)')
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
 
-%% Appearance rate
+save(strcat(resdir, 'p_adjusted_Timeavg_DT_stroke_vs_control.mat'), 'p_adj')
+save(strcat(resdir, 'p_unc_Timeavg_DR_stroke_vs_control.mat'), 'p')
+saveas(gcf,strcat(figdir, 'DT_Timeavg_stroke_vs_control.png')
 
+%% Appearance rate
+close all;
 % mean over time
 figure('Position', [0 0 900 300])
 idx=[zeros(23, 1); ones(24,1); ...
@@ -106,3 +121,8 @@ clear p
 [h, p(4), ci, stats]=ttest2(mean(stroke_appearance4, 2,'omitnan'),mean(control_appearance4,2))
 
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
+
+save(strcat(resdir, 'p_adjusted_Timeavg_AR_stroke_vs_control.mat'), 'p_adj')
+save(strcat(resdir, 'p_unc_Timeavg_R_stroke_vs_control.mat'), 'p')
+saveas(gcf,strcat(figdir, 'AR_Timeavg_stroke_vs_control.png'))
+

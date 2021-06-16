@@ -1,6 +1,10 @@
 %% plot results of permutation pvalue testing of transition probabilities
 % generate data with calculate_transition_probabilities.m
 
+figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/figures/'
+resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+
+
 tiledlayout(5,1,'padding', 'none')
 % session 1
 nexttile;imagesc(stats1); colorbar;title('Session 1'); 

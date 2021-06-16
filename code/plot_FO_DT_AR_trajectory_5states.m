@@ -1,3 +1,8 @@
+
+figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/figures/'
+resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+
+
 %% Fractional occupancy
 idx=[ones(23,1); ones(23,1)*2;ones(23,1)*3;ones(23,1)*4;ones(23,1)*5];
 tiledlayout(1,4,'padding','none')

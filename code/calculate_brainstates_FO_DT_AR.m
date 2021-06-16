@@ -127,7 +127,6 @@ f.PaperPosition = [0 0 4 2];
 
 saveas(f,fullfile(savedir,['AMI_k',num2str(numClusters),'.pdf']));
 
-
 %% Visualize cluster centroids
 % compute centroids and plot
 best_number_of_clusters =4 %define
@@ -623,8 +622,6 @@ stroke_appearance2(6,5)=NaN
 stroke_appearance3(6,5)=NaN
 stroke_appearance4(6,5)=NaN
 
-
-
 dwell_avg_stroke(20,5,:)=NaN
 dwell_avg_stroke(20,4,:)=NaN
 dwell_avg_stroke(20,3,:)=NaN
@@ -646,8 +643,4 @@ control_appearance1=cell2mat(control_appearance1)
 control_appearance2=cell2mat(control_appearance2)
 control_appearance3=cell2mat(control_appearance3)
 control_appearance4=cell2mat(control_appearance4)
-
-
-
-%% stroke FO over time
 

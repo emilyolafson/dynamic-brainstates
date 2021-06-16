@@ -128,8 +128,27 @@ end
 allcontrol_trans=permute(allcontrol_trans, [3 1 2])
 pvals_twotail_S5 = PERM_TEST(allstroke_trans,allcontrol_trans,nperms);
 
+pvals_twotail_all=[]
+pvals_twotail_all{1}=pvals_twotail_S1;
+pvals_twotail_all{2}=pvals_twotail_S2;
+pvals_twotail_all{3}=pvals_twotail_S3;
+pvals_twotail_all{4}=pvals_twotail_S4;
+pvals_twotail_all{5}=pvals_twotail_S5;
+[h, ~, ~, p_adjs1] = fdr_bh(pvals_twotail_S1, 0.05,'pdep')
+[h, ~, ~, p_adjs2] = fdr_bh(pvals_twotail_S2, 0.05,'pdep')
+[h, ~, ~, p_adjs3] = fdr_bh(pvals_twotail_S3, 0.05,'pdep')
+[h, ~, ~, p_adjs4] = fdr_bh(pvals_twotail_S4, 0.05,'pdep')
+[h, ~, ~, p_adjs5] = fdr_bh(pvals_twotail_S5, 0.05,'pdep')
 
+pvals_twotail_corr=[]
+pvals_twotail_corr{1}=p_adjs1;
+pvals_twotail_corr{2}=p_adjs2;
+pvals_twotail_corr{3}=p_adjs3;
+pvals_twotail_corr{4}=p_adjs4;
+pvals_twotail_corr{5}=p_adjs5;
 
+save(strcat(resdir, 'p_adjusted_transitionprob_stroke_vs_control.mat'), 'pvals_twotail_corr')
+save(strcat(resdir, 'p_unc_transitionprob_stroke_vs_control.mat'), 'pvals_twotail_all')
 
 %%  get t-stats for transition probs for separate sessions
 
@@ -258,3 +277,35 @@ for a=1:4
         stats5(a,b)=stat.tstat;
     end
 end
+
+
+[h, ~, ~, p1_adj] = fdr_bh(p1, 0.05,'pdep')
+[h, ~, ~, p2_adj] = fdr_bh(p2, 0.05,'pdep')
+[h, ~, ~, p3_adj] = fdr_bh(p3, 0.05,'pdep')
+[h, ~, ~, p4_adj] = fdr_bh(p4, 0.05,'pdep')
+[h, ~, ~, p5_adj] = fdr_bh(p5, 0.05,'pdep')
+
+
+alltstats{1}=stats1;
+alltstats{2}=stats2;
+alltstats{3}=stats3;
+alltstats{4}=stats4;
+alltstats{5}=stats5;
+
+allpvals{1}=p1;
+allpvals{2}=p2;
+allpvals{3}=p3;
+allpvals{4}=p4;
+allpvals{5}=p5;
+
+allpvals_adj{1}=p1_adj;
+allpvals_adj{2}=p2_adj;
+allpvals_adj{3}=p3_adj;
+allpvals_adj{4}=p4_adj;
+allpvals_adj{5}=p5_adj;
+
+
+save(strcat(resdir, 'tstats_transitionprob_stroke_control.mat'), 'alltstats')
+save(strcat(resdir, 'p_unc_transitionprob_stroke_control.mat'), 'allpvals')
+save(strcat(resdir, 'p_adj_transitionprob_stroke_control.mat'), 'allpvals_adj')
+
