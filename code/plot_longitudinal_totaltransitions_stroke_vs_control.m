@@ -9,15 +9,11 @@ stroke_meanappearance3=mean([stroke_appearance1(:,3),stroke_appearance2(:,3),str
 stroke_meanappearance4=mean([stroke_appearance1(:,4),stroke_appearance2(:,4),stroke_appearance3(:,4),stroke_appearance4(:,4)],2)
 stroke_meanappearance5=mean([stroke_appearance1(:,5),stroke_appearance2(:,5),stroke_appearance3(:,5),stroke_appearance4(:,5)],2)
 
-
 control_meanappearance1=mean([control_appearance1(:,1),control_appearance2(:,1),control_appearance3(:,1),control_appearance4(:,1)],2)
 control_meanappearance2=mean([control_appearance1(:,2),control_appearance2(:,2),control_appearance3(:,2),control_appearance4(:,2)],2)
 control_meanappearance3=mean([control_appearance1(:,3),control_appearance2(:,3),control_appearance3(:,3),control_appearance4(:,3)],2)
 control_meanappearance4=mean([control_appearance1(:,4),control_appearance2(:,4),control_appearance3(:,4),control_appearance4(:,4)],2)
 control_meanappearance5=mean([control_appearance1(:,5),control_appearance2(:,5),control_appearance3(:,5),control_appearance4(:,5)],2)
-
-
-
 
 close all;
 
@@ -44,8 +40,7 @@ violin(10).ViolinColor=[1 0.4 0.4]
 xticks(1:2:12)
 xticklabels({'Session 1','Session 2','Session 3', 'Session 4', 'Session 5'})
 set(gca, 'FontSize', 15)
-ylabel('Total number of transitions')
-
+ylabel('Average # of transitions (to all states)')
 
 [h, p(1), ci, stats]=ttest2(stroke_meanappearance1,control_meanappearance1)
 [h, p(2), ci, stats]=ttest2(stroke_meanappearance2,control_meanappearance3)
@@ -56,7 +51,4 @@ ylabel('Total number of transitions')
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
 saveas(gcf,strcat(figdir, 'Avg_number_transitions_overtime_stroke_vs_control.png'))
-
-
-
 

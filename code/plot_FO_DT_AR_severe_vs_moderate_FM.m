@@ -21,8 +21,8 @@ end
 rh=[1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
 stroke_dom=~r.*rh
 
-idx_severe=logical(r')
-idx_mod=~r'
+idx_severe=logical(stroke_dom')
+idx_mod=~stroke_dom'
 sev=sum(idx_severe)
 mod=sum(idx_mod)
 
@@ -45,6 +45,7 @@ for i=1:5
     [h,p(3,i),~,~]=ttest2(severe_FO3(:,i),mod_FO3(:,i))
     [h,p(4,i),~,~]=ttest2(severe_FO4(:,i),mod_FO4(:,i))
 end
+
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 s=1
 [rho, p(1)]=corr(severe_FO1(:,s), cstall(idx_severe)', 'rows', 'complete')
