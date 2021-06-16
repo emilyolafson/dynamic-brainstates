@@ -65,8 +65,8 @@ set(gca, 'FontSize', 15)
 
 
 
-save(strcat(resdir, 'p_adjusted_Timeavg_FO_stroke_vs_control.mat', 'p_adj'))
-save(strcat(resdir, 'p_unc_Timeavg_FO_stroke_vs_control.mat', 'p'))
+save(strcat(resdir, 'p_adjusted_Timeavg_FO_stroke_vs_control.mat'), 'p_adj'))
+save(strcat(resdir, 'p_unc_Timeavg_FO_stroke_vs_control.mat'), 'p')
 saveas(gcf,strcat(figdir, 'FO_Timeavg_stroke_vs_control.png'))
 
 %% Dwell time differences across all sessions, stroke and controls;
