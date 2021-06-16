@@ -59,6 +59,7 @@ fo_23=stroke_FO1(:,3)-stroke_FO1(:,2);
 fo_34=stroke_FO1(:,4)-stroke_FO1(:,3);
 fo_45=stroke_FO1(:,5)-stroke_FO1(:,4);
 
+clear p
 [rho,p(1)]=corr(fm12, fo_12, 'rows', 'complete')
 [rho,p(2)]=corr(fm23, fo_23, 'rows', 'complete')
 [rho,p(3)]=corr(fm34, fo_34, 'rows', 'complete')
@@ -89,9 +90,6 @@ fo_45=stroke_FO1(:,5)-stroke_FO1(:,4);
 [rho, p(18)]=corr(dwell_avg_stroke(:,5,2), fm_5, 'rows', 'complete')
 [rho, p(19)]=corr(dwell_avg_stroke(:,5,3), fm_5, 'rows', 'complete')
 [rho, p(20)]=corr(dwell_avg_stroke(:,5,4), fm_5, 'rows', 'complete')
-
-
-plot(dwell_avg_stroke(:,:,3)')
 
 
 %state 1
@@ -209,7 +207,6 @@ fo_45=stroke_appearance2(:,5)-stroke_appearance2(:,4);
 [rho,p(3)]=corr(fm34, fo_34, 'rows', 'complete')
 [rho,p(4)]=corr(fm45, fo_45, 'rows', 'complete')
 
-
 clear p
 fo_12=stroke_appearance3(:,2)-stroke_appearance3(:,1);
 fo_23=stroke_appearance3(:,3)-stroke_appearance3(:,2);
@@ -221,62 +218,4 @@ fo_45=stroke_appearance3(:,5)-stroke_appearance3(:,4);
 [rho,p(3)]=corr(fm34, fo_34, 'rows', 'complete')
 [rho,p(4)]=corr(fm45, fo_45, 'rows', 'complete')
 
-
-% difference relative to controls correlated with recovery/impairment?
-avgctl=mean(control_FO1(:,:),2)
-meanctl=mean(avgctl)
-stdctl=std(avgctl,1)
-zscoretst1=(stroke_FO1(:,1)-meanctl*ones(23,1))./stdctl
-
-avgctl=mean(control_FO2(:,:),2)
-meanctl=mean(avgctl)
-stdctl=std(avgctl,1)
-zscoretst2=(stroke_FO2(:,1)-meanctl*ones(23,1))./stdctl
-
-avgctl=mean(control_FO3(:,:),2)
-meanctl=mean(avgctl)
-stdctl=std(avgctl,1)
-zscoretst3=(stroke_FO3(:,1)-meanctl*ones(23,1))./stdctl
-
-avgctl=mean(control_FO4(:,:),2)
-meanctl=mean(avgctl)
-stdctl=std(avgctl,1)
-zscoretst4=(stroke_FO4(:,1)-meanctl*ones(23,1))./stdctl
-
-[rho,p]=corr(zscoretst1, fm_5, 'rows', 'complete')
-[rho,p]=corr(zscoretst2, fm_5, 'rows', 'complete')
-[rho,p]=corr(zscoretst3, fm_5, 'rows', 'complete')
-[rho,p]=corr(zscoretst4, fm_5, 'rows', 'complete')
-
-% dwell time
-
-% difference relative to controls correlated with recovery/impairment?
-state=1
-avgctl=squeeze(mean(dwell_avg_control(:,:,:),2))
-meanctl=mean(avgctl(:,state))
-stdctl=std(avgctl(:,state),1)
-zscoretst1=(dwell_avg_stroke(:,1,state)-meanctl*ones(23,1))./stdctl
-
-state=2
-avgctl=squeeze(mean(dwell_avg_control(:,:,:),2))
-meanctl=mean(avgctl(:,state))
-stdctl=std(avgctl(:,state),1)
-zscoretst2=(dwell_avg_stroke(:,1,state)-meanctl*ones(23,1))./stdctl
-
-state=3
-avgctl=squeeze(mean(dwell_avg_control(:,:,:),2))
-meanctl=mean(avgctl(:,state))
-stdctl=std(avgctl(:,state),1)
-zscoretst3=(dwell_avg_stroke(:,1,state)-meanctl*ones(23,1))./stdctl
-
-state=4
-avgctl=squeeze(mean(dwell_avg_control(:,:,:),2))
-meanctl=mean(avgctl(:,state))
-stdctl=std(avgctl(:,state),1)
-zscoretst4=(dwell_avg_stroke(:,1,state)-meanctl*ones(23,1))./stdctl
-
-[rho,p]=corr(zscoretst1, fm_5, 'rows', 'complete')
-[rho,p]=corr(zscoretst2, fm_5, 'rows', 'complete')
-[rho,p]=corr(zscoretst3, fm_5, 'rows', 'complete')
-[rho,p]=corr(zscoretst4, fm_5, 'rows', 'complete')
 

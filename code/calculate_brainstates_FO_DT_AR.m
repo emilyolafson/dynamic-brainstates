@@ -188,15 +188,15 @@ thetaNames = YeoNetNames; thetaNames{9} = '';
 f=figure;
 for K = 1:numClusters
     ax = subplot(1,numClusters,K,polaraxes); hold on
-    polarplot(netAngle,[net8angle_Up(K,:) net8angle_Up(K,1)],'k');
-    polarplot(netAngle,[net8angle_Down(K,:) net8angle_Down(K,1)],'r');
+    polarplot(netAngle,[net8angle_Up(K,:) net8angle_Up(K,1)],'k', 'LineWidth', 3);
+    polarplot(netAngle,[net8angle_Down(K,:) net8angle_Down(K,1)],'r', 'LineWidth', 3);
     thetaticks(rad2deg(netAngle)); thetaticklabels(thetaNames);
     rticks([0.4 0.8]); rticklabels({'0.4','0.8'});
 %     for L = 1:numNets
 %         ax.ThetaTickLabel{L} = sprintf('\\color[rgb]{%f,%f,%f}%s', ...
 %         YeoColors(L,:), ax.ThetaTickLabel{L});
 %     end
-    set(ax,'FontSize',6);
+    set(ax,'FontSize',15);
     %title(overallNames{K},'Color',clusterColors(K,:),'FontSize',8);
 end
 
