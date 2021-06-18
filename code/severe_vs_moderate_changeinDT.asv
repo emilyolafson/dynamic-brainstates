@@ -1,6 +1,8 @@
 
 figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/figures/'
 resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+load('partitions_k4_50reps.mat')
+
 
 %% Severe vs moderate stroke subjects
 %lesion load
@@ -18,17 +20,31 @@ for i=1:23
     end
 end
 
-rh=[1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
-stroke_dom=~r.*rh
+rh=[1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+stroke_dom=~r.*rh %people whose dominant hand was lesioned
 
-idx_severe=logical(stroke_dom')
+idx_severe=logical(stroke_dom') %severe=cst of rh affected
 idx_mod=~stroke_dom'
+sev=sum(idx_severe)
+mod=sum(idx_mod)
+
+[h, p, ~, stats]=ttest2(cstall(idx_severe),cstall(idx_mod))
+
+histogram(cstall(idx_severe), sev);
+hold on;
+histogram(cstall(idx_mod),mod)
+
+
+
+corr(cstall(idx_severe), diffFO2_sev)
+
+idx_severe=cstall>0.009
+idx_mod=cstall<=0.009
 sev=sum(idx_severe)
 mod=sum(idx_mod)
 
 %% Dwell time - moderate vs severe
 % across single sessions
-
 fm41=fm_4-fm_1
 fm31=fm_3-fm_1;
 fm51=fm_5-fm_1;
@@ -36,127 +52,108 @@ fm21=fm_2-fm_1
 
 severe_FO2=dwell_avg_stroke(idx_severe,:,2)
 mod_FO2=dwell_avg_stroke(idx_mod,:,2)
-diffDT2_sev=severe_FO2(:,3)-severe_FO2(:,1);
-diffDT2_mod=mod_FO2(:,3)-mod_FO2(:,1);
+diffDT2_sev=severe_FO2(:,4)-severe_FO2(:,1);
+diffDT2_mod=mod_FO2(:,4)-mod_FO2(:,1);
 
 severe_FO2=stroke_FO2(idx_severe,:)
 mod_FO2=stroke_FO2(idx_mod,:)
-diffFO2_sev=severe_FO2(:,3)-severe_FO2(:,1);
-diffFO2_mod=mod_FO2(:,3)-mod_FO2(:,1);
+diffFO2_sev=severe_FO2(:,4)-severe_FO2(:,1)
+diffFO2_mod=mod_FO2(:,4)-mod_FO2(:,1);
 
 severe_FO2=stroke_appearance2(idx_severe,:)
 mod_FO2=stroke_appearance2(idx_mod,:)
-diffAR2_sev=severe_FO2(:,3)-severe_FO2(:,1);
-diffAR2_mod=mod_FO2(:,3)-mod_FO2(:,1);
-
-
-tiledlayout(2, 3, 'padding', 'none')
-nexttile;
-scatter(diffFO2_sev,fm31(idx_severe), 'ko', 'filled')
-title('Fractional Occupancy')
-xlabel('Change in FO (1 month - 1 week)')
-ylabel('Change in Fugl-Meyer score (1 month - 1 week)')
-lsline
-
-nexttile;
-scatter(diffDT2_sev,fm31(idx_severe), 'ko', 'filled')
-title('Dwell Time')
-xlabel('Change in DT (1 month - 1 week)')
-ylabel('Change in Fugl-Meyer score (1 month - 1 week)')
-
-
-lsline
-nexttile;
-scatter(diffAR2_sev,fm31(idx_severe), 'ko', 'filled')
-title('Appearance Rate')
-xlabel('Change in AR (1 month - 1 week)')
-ylabel('Change in Fugl-Meyer score (1 month - 1 week)')
-
-lsline
-
-nexttile;
-scatter(diffFO2_mod,fm31(idx_mod), 'ko', 'filled')
-title('Fractional Occupancy')
-xlabel('Change in FO (1 month - 1 week)')
-ylabel('Change in Fugl-Meyer score (1 month - 1 week)')
-
-lsline
-
-nexttile;
-scatter(diffDT2_mod,fm31(idx_mod), 'ko', 'filled')
-title('Dwell Time')
-xlabel('Change in DT (1 month - 1 week)')
-ylabel('Change in Fugl-Meyer score (1 month - 1 week)')
-
-lsline
-
-nexttile;
-scatter(diffAR2_mod,fm31(idx_mod), 'ko', 'filled')
-title('Appearance Rate')
-xlabel('Change in AR (1 month - 1 week)')
-ylabel('Change in Fugl-Meyer score (1 month - 1 week)')
-text(['correlation = ', num2str(rhos(6)), 'p(FDR) = ', num2str(p(6))])
-lsline
+diffAR2_sev=severe_FO2(:,4)-severe_FO2(:,1);
+diffAR2_mod=mod_FO2(:,4)-mod_FO2(:,1);
 
 
 clear p
-[rhos(1), p(1)]=corr(diffFO2_sev, fm31(idx_severe), 'rows', 'complete')
-[rhos(2), p(2)]=corr(diffDT2_sev, fm31(idx_severe), 'rows', 'complete')
-[rhos(3), p(3)]=corr(diffAR2_sev, fm31(idx_severe), 'rows', 'complete')
-[rhos(4), p(4)]=corr(diffFO2_mod, fm31(idx_mod), 'rows', 'complete')
-[rhos(5), p(5)]=corr(diffDT2_mod, fm31(idx_mod), 'rows', 'complete')
-[rhos(6), p(6)]=corr(diffAR2_mod, fm31(idx_mod), 'rows', 'complete')
+[rhos(1), p(1)]=corr(diffFO2_sev, fm41(idx_severe), 'rows', 'complete')
+[rhos(2), p(2)]=corr(diffDT2_sev, fm41(idx_severe), 'rows', 'complete')
+[rhos(3), p(3)]=corr(diffAR2_sev, fm41(idx_severe), 'rows', 'complete')
+[rhos(4), p(4)]=corr(diffFO2_mod, fm41(idx_mod), 'rows', 'complete')
+[rhos(5), p(5)]=corr(diffDT2_mod, fm41(idx_mod), 'rows', 'complete')
+[rhos(6), p(6)]=corr(diffAR2_mod, fm41(idx_mod), 'rows', 'complete')
 
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
 
-
-
-
-
-
+c=1
+figure('Position', [0 0 1600 1000])
+tiledlayout(2, 3, 'padding', 'none')
 nexttile;
-diffFO2=severe_FO2(:,3)-severe_FO2(:,1)
-[rho(2), p(2)]=corr(diffFO2, fm31(idx_severe), 'rows', 'complete')
-plot(diffFO2, fm31(idx_severe), '*r')
-nexttile;
-diffFO2=severe_FO2(:,4)-severe_FO2(:,1)
-[rho(3), p(3)]=corr(diffFO2, fm41(idx_severe), 'rows', 'complete')
-plot(diffFO2, fm41(idx_severe), '*r')
-nexttile;
-diffFO2=severe_FO2(:,5)-severe_FO2(:,1)
-[rho(4), p(4)]=corr(diffFO2, fm51(idx_severe), 'rows', 'complete')
-plot(diffFO2, fm51(idx_severe), '*r')
+scatter(diffFO2_sev,fm41(idx_severe), 'ko', 'filled')
+title('Fractional Occupancy')
+xlabel('Change in FO (3 month - 1 week)')
+ylabel('Change in Fugl-Meyer score (3 month - 1 week)')
+message = sprintf('Correlation = %.4f \n p(FDR) = %0.4f', rhos(c), p_adj(c))
+text(-0.10, 60, message, 'FontSize', 15)
+%ylim([0 80])
+set(gca, 'FontSize', 15)
+lsline
+
+nexttile;c=c+1;
+scatter(diffDT2_sev,fm41(idx_severe), 'ko', 'filled')
+title('Dwell Time')
+xlabel('Change in DT (3 month - 1 week)')
+ylabel('Change in Fugl-Meyer score (3 month - 1 week)')
+message = sprintf('Correlation = %.4f \n p(FDR) = %0.4f', rhos(c), p_adj(c))
+text(-0.50, 60, message, 'FontSize', 15)
+%ylim([0 80])
+set(gca, 'FontSize', 15)
+
+lsline
+nexttile;c=c+1;
+scatter(diffAR2_sev,fm41(idx_severe), 'ko', 'filled')
+title('Appearance Rate')
+xlabel('Change in AR (3 month - 1 week)')
+ylabel('Change in Fugl-Meyer score (3 month - 1 week)')
+message = sprintf('Correlation = %.4f \n p(FDR) = %0.4f', rhos(c), p_adj(c))
+text(-0.60, 60, message, 'FontSize', 15)
+lsline
+%ylim([0 80])
+set(gca, 'FontSize', 15, 'FontSize', 15)
+
+nexttile;c=c+1;
+scatter(diffFO2_mod,fm41(idx_mod), 'ko', 'filled')
+title('Fractional Occupancy')
+xlabel('Change in FO (3 month - 1 week)')
+ylabel('Change in Fugl-Meyer score (3 month - 1 week)')
+message = sprintf('Correlation = %.4f \n p(FDR) = %0.4f', rhos(c), p_adj(c))
+text(-0.05, 60, message, 'FontSize', 15)
+lsline
+%ylim([0 80])
+set(gca, 'FontSize', 15)
+
+nexttile;c=c+1;
+scatter(diffDT2_mod,fm41(idx_mod), 'ko', 'filled')
+title('Dwell Time')
+xlabel('Change in DT (3 month - 1 week)')
+ylabel('Change in Fugl-Meyer score (3 month - 1 week)')
+message = sprintf('Correlation = %.4f \n p(FDR) = %0.4f', rhos(c), p_adj(c))
+text(-0.140, 60, message, 'FontSize', 15)
+lsline
+%ylim([0 80])
+set(gca, 'FontSize', 15)
+
+nexttile;c=c+1;
+scatter(diffAR2_mod,fm41(idx_mod), 'ko', 'filled')
+title('Appearance Rate')
+xlabel('Change in AR (3 month - 1 week)')
+ylabel('Change in Fugl-Meyer score (3 month - 1 week)')
+message = sprintf('Correlation = %.4f \n p(FDR) = %0.4f', rhos(c), p_adj(c))
+text(-0.40, 65, message, 'FontSize', 15)
+lsline
+%ylim([0 80])
+set(gca, 'FontSize', 15)
 
 
-boxplot([fm51(idx_severe);fm51(idx_mod)], [ones(9,1);zeros(14,1)])
-ttest2(fm51(idx_severe),fm51(idx_mod))
-
-[h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
-
-tiledlayout(1,4,'padding','none')
-nexttile;
-diffFO2=mod_FO2(:,2)-mod_FO2(:,1)
-[rho, p]=corr(diffFO2, fm21(idx_mod), 'rows', 'complete')
-plot(diffFO2, fm21(idx_mod), '*r')
-nexttile;
-diffFO2=mod_FO2(:,3)-mod_FO2(:,1)
-[rho, p]=corr(diffFO2, fm31(idx_mod), 'rows', 'complete')
-plot(diffFO2, fm31(idx_mod), '*r')
-nexttile;
-diffFO2=mod_FO2(:,4)-mod_FO2(:,1)
-[rho, p]=corr(diffFO2, fm41(idx_mod), 'rows', 'complete')
-plot(diffFO2, fm41(idx_mod), '*r')
-nexttile;
-diffFO2=mod_FO2(:,5)-mod_FO2(:,1)
-[rho, p]=corr(diffFO2, fm51(idx_mod), 'rows', 'complete')
-plot(diffFO2, fm51(idx_mod), '*r')
-
-boxplot([fm_1(idx_severe);fm_1(idx_mod)], [ones(9,1);zeros(14,1)])
-ttest2(fm_1(idx_severe),fm_1(idx_mod))
+saveas(gcf,strcat(figdir, 'changeFM_3month_1week.png'))
 
 
-diffFO2=mod_FO2(:,1)-mod_FO2(:,5)
-[rho, p]=corr(diffFO2, fm15(idx_mod), 'rows', 'complete')
-plot(diffFO2, fm15(idx_mod), '*r')
+severe_FO2=stroke_FO2(idx_severe,1)
+severe_FO2=dwell_avg_stroke(idx_severe,:,2)
+
+[rho, p]=corr(mean(severe_FO2, 2, 'omitnan'), cstall')
+
+
 

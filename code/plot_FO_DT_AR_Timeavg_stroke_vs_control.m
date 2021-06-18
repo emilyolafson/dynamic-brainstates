@@ -1,6 +1,6 @@
 
-figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/figures/'
-resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/5states/figures/'
+resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/5states/'
 
 %% Analysis - Fractional occupancy and dwell time between stroke & control
 % FO differences across all sessions, stroke and controls;

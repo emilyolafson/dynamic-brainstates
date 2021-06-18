@@ -80,6 +80,7 @@ for i=1:12
 end
 
 
+
 % plot cluster quality
 close all;
 plot(avgDist, 'or')
@@ -106,6 +107,8 @@ save('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.ma
 save('/Users/emilyolafson/GIT/dynamic-brainstates/results/sum_squared_distk4k5.mat', 'totSum')
 save('/Users/emilyolafson/GIT/dynamic-brainstates/results/partitions_k4_50reps.mat', 'parts')
 
+load('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
+
 %% calculate adjusted mutual information for every pair of partitions
 ami_results = NaN(50,50);
 for i=1:50
@@ -114,7 +117,6 @@ for i=1:50
     end
 end
 [m,ind] = max(sum(ami_results,1)); %ind corresponds to the partition which has the highest mutual information with all other partitions
-partition = parts(:,ind); % take partition that has most agreement with all other for further analysis
 
 % plot
 f = figure;
@@ -129,15 +131,17 @@ saveas(f,fullfile(savedir,['AMI_k',num2str(numClusters),'.pdf']));
 
 %% Visualize cluster centroids
 % compute centroids and plot
-best_number_of_clusters =4 %define
-centroids = GET_CENTROIDS(np,partition,best_number_of_clusters);
+best_number_of_clusters =5 %define
+
+centroids = GET_CENTROIDS(np,cluster_output2(:,5),best_number_of_clusters);
 atlasblobs_list=load('gummibrain/atlasblobs_saved.mat');
 atlasblobs_list=atlasblobs_list.atlasblobs_list;
 
 whichatlas={'shen268'};
+cmap=colormap(plasma) %matplotlib colormap matlab toolbox
 
 % gummibrain code (need to install from kjamison repo) https://github.com/kjamison/atlasblobs
-results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/results/centroids_5states/'
 for i=1:best_number_of_clusters
     close all;
     %cc400_data needs to be a 1x392 vector
@@ -185,7 +189,7 @@ numNets=8
 clusterColors = hex2rgb(clusterColors);
 netAngle = linspace(0,2*pi,numNets+1);
 thetaNames = YeoNetNames; thetaNames{9} = '';
-f=figure('Position', [0 0 5000 5000]);
+f=figure('Position', [0 0 900 800]);
 for K = 1:numClusters
     ax = subplot(1,numClusters,K,polaraxes); hold on
     polarplot(netAngle,[net8angle_Up(K,:) net8angle_Up(K,1)],'k', 'LineWidth', 3);
@@ -196,7 +200,7 @@ for K = 1:numClusters
 %         ax.ThetaTickLabel{L} = sprintf('\\color[rgb]{%f,%f,%f}%s', ...
 %         YeoColors(L,:), ax.ThetaTickLabel{L});
 %     end
-    set(ax,'FontSize',15);
+    set(ax,'FontSize',12);
     %title(overallNames{K},'Color',clusterColors(K,:),'FontSize',8);
 end
 
@@ -204,13 +208,18 @@ end
 %% count number of each cluster per scan
 %partition=cluster_output2(:,4)
 clear A
-
+load('partitions_k4_50reps.mat')
+partition = parts(:,ind); % take partition that has most agreement with all other for further analysis
+partition=cluster_output2(:,5)
 z=1;
 l=1;
 clear stroke_count
 clear control_count
 clear *count_state*
+clear appear
 clear *FO*
+
+k=best_number_of_clusters
 for i=1:47
     nsess=5;
     if i==6
@@ -220,11 +229,14 @@ for i=1:47
         stroke_count_state2{i,j}=[0]
         stroke_count_state3{i,j}=[0]
         stroke_count_state4{i,j}=[0]
+        stroke_count_state5{i,j}=[0]
 
         stroke_FO1{i,j}=[0]
         stroke_FO2{i,j}=[0]
         stroke_FO3{i,j}=[0]
         stroke_FO4{i,j}=[0]
+        stroke_FO5{i,j}=[0]
+
     end
     if i==12
         nsess=3;
@@ -233,10 +245,14 @@ for i=1:47
             stroke_count_state2{i,j}=[0]
             stroke_count_state3{i,j}=[0]
             stroke_count_state4{i,j}=[0]
+            stroke_count_state4{i,j}=[0]
+
             stroke_FO1{i,j}=[0]
             stroke_FO2{i,j}=[0]
             stroke_FO3{i,j}=[0]
             stroke_FO4{i,j}=[0]
+            stroke_FO5{i,j}=[0]
+
         end
     end
 
@@ -247,28 +263,36 @@ for i=1:47
         stroke_count_state2{i,j}=[0]
         stroke_count_state3{i,j}=[0]
         stroke_count_state4{i,j}=[0]
+        stroke_count_state5{i,j}=[0]
+
         stroke_FO1{i,j}=[0]
         stroke_FO2{i,j}=[0]
         stroke_FO3{i,j}=[0]
         stroke_FO4{i,j}=[0]
+        stroke_FO5{i,j}=[0]
+
         end
     end
     for j=1:nsess
         clusters{i,j}=partition(z:z+leng2(l)-1);
         if i<24
             %stroke
-            counts=hist(clusters{i,j}, 1:4);
+            counts=hist(clusters{i,j}, 1:5);
             stroke_count_state1{i,j}=counts(1);
             stroke_count_state2{i,j}=counts(2);
             stroke_count_state3{i,j}=counts(3);
             stroke_count_state4{i,j}=counts(4);
+            stroke_count_state5{i,j}=counts(5);
+
             stroke_FO1{i,j}=stroke_count_state1{i,j}/clusters2(i,j);
             stroke_FO2{i,j}=stroke_count_state2{i,j}/clusters2(i,j);
             stroke_FO3{i,j}=stroke_count_state3{i,j}/clusters2(i,j);
             stroke_FO4{i,j}=stroke_count_state4{i,j}/clusters2(i,j);
+            stroke_FO5{i,j}=stroke_count_state5{i,j}/clusters2(i,j);
+
             dwell=zeros(size(clusters{i,j},1),1)
             c=1;
-            for k=1:4
+            for k=1:best_number_of_clusters
                 c=1
                 dwell=zeros(size(clusters{i,j},1),1)
 
@@ -296,18 +320,22 @@ for i=1:47
             %FO
         else
             %control
-            counts=hist(clusters{i,j}, 1:4);
+            counts=hist(clusters{i,j}, 1:5);
             control_count_state1{i-23,j}=counts(1);
             control_count_state2{i-23,j}=counts(2);
             control_count_state3{i-23,j}=counts(3);
             control_count_state4{i-23,j}=counts(4);
+            control_count_state5{i-23,j}=counts(5);
+
             control_FO1{i-23,j}=control_count_state1{i-23,j}/clusters2(i,j);
             control_FO2{i-23,j}=control_count_state2{i-23,j}/clusters2(i,j);
             control_FO3{i-23,j}=control_count_state3{i-23,j}/clusters2(i,j);
             control_FO4{i-23,j}=control_count_state4{i-23,j}/clusters2(i,j);
+            control_FO5{i-23,j}=control_count_state5{i-23,j}/clusters2(i,j);
+
             dwell=zeros(size(clusters{i,j},1),1)
             c=1;
-            for k=1:4
+            for k=1:5
                 c=1
                 dwell=zeros(size(clusters{i,j},1),1)
 
@@ -343,7 +371,7 @@ subjID=[];
 for i=1:size(leng2,2)
     subjID = [subjID; ones(leng2(i), 1)*i];
 end
-[transProbs,transitionProbabilityMats,numTransitions] = GET_TRANS_PROBS(partition,subjID, 4);  
+[transProbs,transitionProbabilityMats,numTransitions] = GET_TRANS_PROBS(partition,subjID, 5);  
 
 [~,nopersist_transitionProbabilityMats] = GET_TRANS_PROBS_NO_PERSIST(partition, subjID);  
 
@@ -358,7 +386,7 @@ for i=1:47
     vec=nsessions==i;
     tmp=transitionProbabilityMats(vec,:,:);
     for j=1:size(tmp,1) %nsessions
-        for p=1:4
+        for p=1:5
             tran_prob{i,j}=squeeze(tmp(j,:,:));
         end
     end
@@ -368,7 +396,7 @@ for i=1:47
     vec=nsessions==i;
     tmp=nopersist_transitionProbabilityMats(vec,:,:);
     for j=1:size(tmp,1) %nsessions
-        for p=1:4
+        for p=1:5
             tran_prob_nopersist{i,j}=squeeze(tmp(j,:,:));
         end
     end
@@ -391,6 +419,8 @@ for i=1:47
         stroke_appearance2{i,j}=[0]
         stroke_appearance3{i,j}=[0]
         stroke_appearance4{i,j}=[0]
+        stroke_appearance5{i,j}=[0]
+
         end
     end
     if i==12
@@ -400,6 +430,8 @@ for i=1:47
         stroke_appearance2{i,j}=[0]
         stroke_appearance3{i,j}=[0]
         stroke_appearance4{i,j}=[0]
+        stroke_appearance5{i,j}=[0]
+
         end
     end 
     if i==6
@@ -409,6 +441,8 @@ for i=1:47
         stroke_appearance2{i,j}=[0]
         stroke_appearance3{i,j}=[0]
         stroke_appearance4{i,j}=[0]
+        stroke_appearance5{i,j}=[0]
+
         end
     end
     for j=1:nsess
@@ -418,6 +452,8 @@ for i=1:47
             appear2=0;
             appear3=0;
             appear4=0;
+            appear5=0;
+
             index = 1
             while index <= clusters2(i,j)
                 disp(['cluster of TR: ', num2str(index)])
@@ -468,6 +504,18 @@ for i=1:47
                         end
                     end
                     disp(['Leaving state 4'])
+                    index=index+c;
+                    continue;
+                elseif vector(index)==5
+                    disp('New appearance: state 5')
+                    appear5=appear5+1;
+                    try
+                        while vector(index+c)==5
+                            disp('Still in state 5')
+                            c=c+1;
+                        end
+                    end
+                    disp(['Leaving state 5'])
                     index=index+c;
                     continue;
                 end
@@ -476,12 +524,16 @@ for i=1:47
             stroke_appearance2{i,j}=appear2/(clusters2(i,j)*3/60);
             stroke_appearance3{i,j}=appear3/(clusters2(i,j)*3/60);
             stroke_appearance4{i,j}=appear4/(clusters2(i,j)*3/60);
+            stroke_appearance5{i,j}=appear5/(clusters2(i,j)*3/60);
+
         else
             vector=clusters{i,j};
             appear1=0;
             appear2=0;
             appear3=0;
             appear4=0;
+            appear5=0;
+
             index = 1
             while index <= clusters2(i,j)
                 disp(['cluster of TR: ', num2str(index)])
@@ -534,12 +586,26 @@ for i=1:47
                     disp(['Leaving state 4'])
                     index=index+c;
                     continue;
+                elseif vector(index)==5
+                    disp('New appearance: state 5')
+                    appear5=appear5+1;
+                    try
+                        while vector(index+c)==5
+                            disp('Still in state 5')
+                            c=c+1;
+                        end
+                    end
+                    disp(['Leaving state 5'])
+                    index=index+c;
+                    continue;
                 end
             end
             control_appearance1{i-23,j}=appear1/(clusters2(i,j)*3/60);
             control_appearance2{i-23,j}=appear2/(clusters2(i,j)*3/60);
             control_appearance3{i-23,j}=appear3/(clusters2(i,j)*3/60);
             control_appearance4{i-23,j}=appear4/(clusters2(i,j)*3/60);
+            control_appearance5{i-23,j}=appear5/(clusters2(i,j)*3/60);
+
         end
     end
 end
@@ -552,75 +618,92 @@ stroke_count_state1=cell2mat(stroke_count_state1)
 stroke_count_state2=cell2mat(stroke_count_state2)
 stroke_count_state3=cell2mat(stroke_count_state3)
 stroke_count_state4=cell2mat(stroke_count_state4)
+stroke_count_state5=cell2mat(stroke_count_state5)
+
 stroke_FO1=cell2mat(stroke_FO1)
 stroke_FO2=cell2mat(stroke_FO2)
 stroke_FO3=cell2mat(stroke_FO3)
 stroke_FO4=cell2mat(stroke_FO4)
+stroke_FO5=cell2mat(stroke_FO5)
+
 stroke_appearance1=cell2mat(stroke_appearance1)
 stroke_appearance2=cell2mat(stroke_appearance2)
 stroke_appearance3=cell2mat(stroke_appearance3)
 stroke_appearance4=cell2mat(stroke_appearance4)
+stroke_appearance5=cell2mat(stroke_appearance5)
 
 stroke_FO1(20,3)=NaN
 stroke_FO2(20,3)=NaN
 stroke_FO3(20,3)=NaN
 stroke_FO4(20,3)=NaN
+stroke_FO5(20,3)=NaN
 
 stroke_FO1(20,4)=NaN
 stroke_FO2(20,4)=NaN
 stroke_FO3(20,4)=NaN
 stroke_FO4(20,4)=NaN
+stroke_FO5(20,4)=NaN
 
 stroke_FO1(20,5)=NaN
 stroke_FO2(20,5)=NaN
 stroke_FO3(20,5)=NaN
 stroke_FO4(20,5)=NaN
+stroke_FO5(20,5)=NaN
 
 stroke_FO1(12,4)=NaN
 stroke_FO2(12,4)=NaN
 stroke_FO3(12,4)=NaN
 stroke_FO4(12,4)=NaN
+stroke_FO5(12,4)=NaN
 
 stroke_FO1(12,5)=NaN
 stroke_FO2(12,5)=NaN
 stroke_FO3(12,5)=NaN
 stroke_FO4(12,5)=NaN
+stroke_FO5(12,5)=NaN
 
 stroke_FO1(6,5)=NaN
 stroke_FO2(6,5)=NaN
 stroke_FO3(6,5)=NaN
 stroke_FO4(6,5)=NaN
+stroke_FO5(6,5)=NaN
 
 
 stroke_appearance1(20,3)=NaN
 stroke_appearance2(20,3)=NaN
 stroke_appearance3(20,3)=NaN
 stroke_appearance4(20,3)=NaN
+stroke_appearance5(20,3)=NaN
 
 stroke_appearance1(20,4)=NaN
 stroke_appearance2(20,4)=NaN
 stroke_appearance3(20,4)=NaN
 stroke_appearance4(20,4)=NaN
+stroke_appearance5(20,4)=NaN
 
 stroke_appearance1(20,5)=NaN
 stroke_appearance2(20,5)=NaN
 stroke_appearance3(20,5)=NaN
 stroke_appearance4(20,5)=NaN
+stroke_appearance5(20,5)=NaN
 
 stroke_appearance1(12,4)=NaN
 stroke_appearance2(12,4)=NaN
 stroke_appearance3(12,4)=NaN
 stroke_appearance4(12,4)=NaN
+stroke_appearance5(12,4)=NaN
 
 stroke_appearance1(12,5)=NaN
 stroke_appearance2(12,5)=NaN
 stroke_appearance3(12,5)=NaN
 stroke_appearance4(12,5)=NaN
+stroke_appearance5(12,5)=NaN
 
 stroke_appearance1(6,5)=NaN
 stroke_appearance2(6,5)=NaN
 stroke_appearance3(6,5)=NaN
 stroke_appearance4(6,5)=NaN
+stroke_appearance5(6,5)=NaN
 
 dwell_avg_stroke(20,5,:)=NaN
 dwell_avg_stroke(20,4,:)=NaN
@@ -635,12 +718,17 @@ control_count_state1=cell2mat(control_count_state1)
 control_count_state2=cell2mat(control_count_state2)
 control_count_state3=cell2mat(control_count_state3)
 control_count_state4=cell2mat(control_count_state4)
+control_count_state5=cell2mat(control_count_state5)
+
 control_FO1=cell2mat(control_FO1)
 control_FO2=cell2mat(control_FO2)
 control_FO3=cell2mat(control_FO3)
 control_FO4=cell2mat(control_FO4)
+control_FO5=cell2mat(control_FO5)
+
 control_appearance1=cell2mat(control_appearance1)
 control_appearance2=cell2mat(control_appearance2)
 control_appearance3=cell2mat(control_appearance3)
 control_appearance4=cell2mat(control_appearance4)
+control_appearance5=cell2mat(control_appearance5)
 

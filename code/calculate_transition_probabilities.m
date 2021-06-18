@@ -309,3 +309,31 @@ save(strcat(resdir, 'tstats_transitionprob_stroke_control.mat'), 'alltstats')
 save(strcat(resdir, 'p_unc_transitionprob_stroke_control.mat'), 'allpvals')
 save(strcat(resdir, 'p_adj_transitionprob_stroke_control.mat'), 'allpvals_adj')
 
+
+%% Transition probabilities: averaged across sessions
+
+
+allstroke=tran_prob_stroke(:,1)
+allstroke_trans=[]
+for i=1:size(allstroke,1)
+    tmp=cell2mat(allstroke(i));
+    if isempty(tmp)
+        continue
+    end
+     allstroke_trans=cat(3, allstroke_trans,tmp)
+end
+allstroke_trans=permute(allstroke_trans, [3 1 2])
+%format control
+allctl=tran_prob_control(:,1)
+tmp=cell2mat(allctl(i));
+allcontrol_trans=[]
+for i=1:size(allctl,1)
+    tmp=cell2mat(allctl(i));
+    if isempty(tmp)
+        continue
+    end
+     allcontrol_trans=cat(3, allcontrol_trans,tmp);
+end
+allcontrol_trans=permute(allcontrol_trans, [3 1 2])
+pvals_twotail_S1 = PERM_TEST(allstroke_trans,allcontrol_trans,nperms);
+
