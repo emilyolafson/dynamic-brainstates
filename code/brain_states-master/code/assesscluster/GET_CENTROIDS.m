@@ -5,6 +5,7 @@ function kClusterCentroids = GET_CENTROIDS(X,partition,k)
 % partition: length N integer partition vector 
 % k: number of clusters in partition
 %
+
 % OUTPUTS:
 % kClusterCentroids: pxk matrix whose columns contain the average value of points in each cluster
 p = size(X,2);

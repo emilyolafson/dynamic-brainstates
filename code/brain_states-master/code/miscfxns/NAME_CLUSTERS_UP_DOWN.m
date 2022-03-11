@@ -1,4 +1,4 @@
-function [clusterNamesUp,clusterNamesDown,net8angle_Up,net8angle_Down] = NAME_CLUSTERS_UP_DOWN(centroids)
+function [clusterNamesUp,clusterNamesDown,net8angle_Up,net8angle_Down,numNets, YeoNetNames] = NAME_CLUSTERS_UP_DOWN(centroids)
 
 %Provide names for clusters based on angular distance to binary Yeo
 %System Vectors
@@ -6,18 +6,32 @@ function [clusterNamesUp,clusterNamesDown,net8angle_Up,net8angle_Down] = NAME_CL
 %centroids = kClusterCentroids;
 
 [nparc,numClusters] = size(centroids);
+if nparc == 333
+    load('cuttingEdgeFC/gorgon_networklabels.mat'); network7labels = gordon_numbers(1:nparc,2);
+    numNets=12;
+    YeoNetNames={'default mode', 'somatomotor', 'visual', 'fronto-parietal', 'auditory', 'cingulo-parietal', 'retrosplenial-temporal', 'ventral-attn', 'dorsal-attn', 'salience', 'cingulo-opercular', 'none'}
+end
+if nparc == 392
+    tmp=readtable('data/CC400_Yeo7_Map.csv');
+    network7labels=tmp.Yeo7Label;
+    numNets=9;
+    YeoNetNames = {'VIS', 'SOM', 'ATTN-DORS', 'ATTN-VEN', 'LIMB', 'FPN', 'DMN', 'SUB', 'CEREB'}
+elseif nparc == 86
+    tmp=load('data/fs86_to_yeo_map.csv')';
+    numNets=9;
+    network7labels=tmp;
+    YeoNetNames = {'VIS', 'SOM', 'ATTN-DORS', 'ATTN-VEN', 'LIMB', 'FPN', 'DMN', 'SUB', 'CEREB'}
 
-if nparc > 400
-    load('data/yeo7netlabelsLaus250.mat'); network7labels = network7labels(1:nparc);
-else
-    load('networklabels.mat'); network8labels = networks_net(1:nparc);
+elseif nparc == 268
+    load('networklabels.mat'); network7labels = networks_net(1:nparc);
+    numNets=8;
+    YeoNetNames = {'MED FRONT', 'FPN', 'DMN', 'SUB', 'MOTOR', 'VIS I', 'VIS II', 'VIS III'};
 end
 
-numNets = 8;
+network8labels=network7labels;
 binaryNetVectors = ones(nparc,numNets) .* repmat((1:numNets),[nparc 1]); 
 binaryNetVectors = double(binaryNetVectors == network8labels);
 
-YeoNetNames = {'MED FRONT', 'FPN', 'DMN', 'SUB', 'MOTOR', 'VIS I', 'VIS II', 'VIS III'};
 
 % calculate cosine of angle between binary state vector and centroids
 

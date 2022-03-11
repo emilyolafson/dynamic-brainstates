@@ -11,6 +11,7 @@ function [ x, u, n_err ] = MIN_ENG_CONT(A, T, B, x0, xf, nor)
 % x: State Trajectory
 % u: Control Input
 
+
 % Normalize
 if nor == 1
     A = A/(eigs(A,1)+1) - eye(size(A));
@@ -47,8 +48,6 @@ for i = 2:length(t)
 end
 x = v(1:n,:);
 u = -0.5*B'*v([1:n]+n,:);
-
-disp([n_err, norm(x(:,end)-xf)]);
 
 % transpose to be similar to opt_eng_cont
 u = u';

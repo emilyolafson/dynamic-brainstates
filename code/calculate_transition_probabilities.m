@@ -1,3 +1,5 @@
+%
+
 %% Analysis - difference between stroke & control transition probabilities
 % perm test
 nperms = 100000;
@@ -17,6 +19,8 @@ for i=1:size(allstroke,1)
     end
      allstroke_trans=cat(3, allstroke_trans,tmp)
 end
+
+
 allstroke_trans=permute(allstroke_trans, [3 1 2])
 %format control
 allctl=tran_prob_control(:,1)
@@ -103,6 +107,8 @@ for i=1:size(allctl,1)
 end
 allcontrol_trans=permute(allcontrol_trans, [3 1 2])
 pvals_twotail_S4 = PERM_TEST(allstroke_trans,allcontrol_trans,nperms);
+
+
 % session 5
 allstroke=tran_prob_stroke(:,5)
 allstroke_trans=[]
@@ -146,9 +152,6 @@ pvals_twotail_corr{2}=p_adjs2;
 pvals_twotail_corr{3}=p_adjs3;
 pvals_twotail_corr{4}=p_adjs4;
 pvals_twotail_corr{5}=p_adjs5;
-
-save(strcat(resdir, 'p_adjusted_transitionprob_stroke_vs_control.mat'), 'pvals_twotail_corr')
-save(strcat(resdir, 'p_unc_transitionprob_stroke_vs_control.mat'), 'pvals_twotail_all')
 
 %%  get t-stats for transition probs for separate sessions
 
@@ -274,17 +277,16 @@ for a=1:4
             s1control_trans(i)=tmp(a,b);
         end
         [h, p5(a,b),~, stat]=ttest2(s1stroke_trans, s1control_trans)
+        
         stats5(a,b)=stat.tstat;
     end
 end
-
 
 [h, ~, ~, p1_adj] = fdr_bh(p1, 0.05,'pdep')
 [h, ~, ~, p2_adj] = fdr_bh(p2, 0.05,'pdep')
 [h, ~, ~, p3_adj] = fdr_bh(p3, 0.05,'pdep')
 [h, ~, ~, p4_adj] = fdr_bh(p4, 0.05,'pdep')
 [h, ~, ~, p5_adj] = fdr_bh(p5, 0.05,'pdep')
-
 
 alltstats{1}=stats1;
 alltstats{2}=stats2;
@@ -305,35 +307,182 @@ allpvals_adj{4}=p4_adj;
 allpvals_adj{5}=p5_adj;
 
 
-save(strcat(resdir, 'tstats_transitionprob_stroke_control.mat'), 'alltstats')
-save(strcat(resdir, 'p_unc_transitionprob_stroke_control.mat'), 'allpvals')
-save(strcat(resdir, 'p_adj_transitionprob_stroke_control.mat'), 'allpvals_adj')
+
 
 
 %% Transition probabilities: averaged across sessions
-
-
-allstroke=tran_prob_stroke(:,1)
-allstroke_trans=[]
-for i=1:size(allstroke,1)
-    tmp=cell2mat(allstroke(i));
-    if isempty(tmp)
+stest2=[]
+for i=1:23
+    transp=[]
+    allstroke=tran_prob_stroke(i,:)
+    if i==20 || i==12 || i==6
         continue
     end
-     allstroke_trans=cat(3, allstroke_trans,tmp)
-end
-allstroke_trans=permute(allstroke_trans, [3 1 2])
-%format control
-allctl=tran_prob_control(:,1)
-tmp=cell2mat(allctl(i));
-allcontrol_trans=[]
-for i=1:size(allctl,1)
-    tmp=cell2mat(allctl(i));
-    if isempty(tmp)
-        continue
+    stest2(i)=allstroke{5}(4,3);
+    for j=1:size(allstroke,2)
+        transp=cat(3,transp,allstroke{j})
     end
-     allcontrol_trans=cat(3, allcontrol_trans,tmp);
+    average_transp_str{i}=mean(transp,3)
 end
-allcontrol_trans=permute(allcontrol_trans, [3 1 2])
-pvals_twotail_S1 = PERM_TEST(allstroke_trans,allcontrol_trans,nperms);
+
+for i=1:24
+    transp=[]
+    allcontrol=tran_prob_control(i,:)
+    ctest2(i)=allcontrol{5}(4,3);
+    for j=1:size(allcontrol,2)
+        transp=cat(3,transp,allcontrol{j})
+    end
+    average_transp_ctl{i}=mean(transp,3)
+end
+
+figure()
+histogram(stest);hold on; histogram(ctest)
+figure()
+
+histogram(stest2);hold on; histogram(ctest2)
+title('s5')
+% t-tests to find stroke-control differences
+% format average_transp_str to 4x4xN
+average_transp_str_form=[]
+for j=1:size(average_transp_str,2)
+    average_transp_str_form=cat(3,average_transp_str_form,average_transp_str{j})
+end
+average_transp_ctl_form=[]
+for j=1:size(average_transp_ctl,2)
+    average_transp_ctl_form=cat(3,average_transp_ctl_form,average_transp_ctl{j})
+end
+
+imagesc(squeeze(average_transp_ctl_form(:,:,1)))
+
+p=ones(4,4)
+%w persist
+for a=1:4
+    for b=1:4
+        if isnan(squeeze(average_transp_str_form(a,b,:)))
+            disp('isnan')
+        elseif isnan(squeeze(average_transp_ctl_form(a,b,:)))
+            disp('isnan2')
+        end
+        [h, p(a,b),~, stat]=ttest2(squeeze(average_transp_str_form(a,b,:)), squeeze(average_transp_ctl_form(a,b,:)))
+        stats_all(a,b)=stat.tstat
+    end
+end
+
+p_all=p;
+[h, ~, ~, p_adj_all] = fdr_bh(p, 0.05,'pdep')
+
+
+
+
+%% correlation between transition probabilities and fugl-meyer scores?
+
+% Load Fugl-Meyer scores
+fm_dir=strcat('/Users/emilyolafson/GIT/stroke-graph-matching/data/');
+fuglmeyer=readtable(strcat(fm_dir, 'fuglmeyer_allpts.csv'));
+fm_1=fuglmeyer.Var2;
+fm_2=fuglmeyer.Var3;
+fm_3=fuglmeyer.Var4;
+fm_4=fuglmeyer.Var5;
+fm_5=fuglmeyer.Var6;
+
+fm_1(23)=NaN;
+fm_1(22)=NaN;
+fm_3(20)=NaN;
+fm_4(12)=NaN;
+fm_4(20)=NaN;
+fm_5(20)=NaN;
+fm_5(6)=NaN;
+
+fm_1(23)=0
+fm_1(22)=0
+
+
+
+
+%linear regression fugl meyer vs trans prob
+
+% get predictors
+counter=1;
+transprobs_vec=[]
+for a=1:4
+    for b=1:4
+        s1stroke=tran_prob_stroke(:,1)
+        for i=1:size(s1stroke,1)
+            tmp=cell2mat(s1stroke(i));
+            s1stroke_trans(i)=tmp(a,b);
+        end
+        transprobs_vec(:,counter)=s1stroke_trans';
+        counter=counter+1
+    end
+end
+
+fitlm(transprobs_vec,fm_1)
+
+
+
+%separately
+s1stroke_trans=[]
+s1control_trans=[]
+% session 1
+for a=1:4
+    for b=1:4
+        s1stroke=tran_prob_stroke(:,1)
+        s5stroke=tran_prob_stroke_nopersist(:,5)
+        for i=1:size(s1stroke,1)
+            tmp=cell2mat(s1stroke(i));
+            s1stroke_trans(i)=tmp(a,b);
+        end
+        one=s1stroke_trans
+        [rho1(a,b), p1(a,b)]=corr(one', fm_1)
+    end
+end
+
+
+rho2=[]
+p2=[]
+for a=1:4
+    for b=1:4
+        s1stroke=tran_prob_stroke(:,1)
+        s5stroke=tran_prob_stroke(:,5)
+        for i=1:size(s1stroke,1)
+            tmp1=cell2mat(s1stroke(i));  
+            s1stroke_trans(i)=tmp1(a,b);
+        end
+        for i=1:size(s1stroke,1)
+             if i==20
+                continue;
+            elseif i==12
+                continue;
+             elseif i==6
+                 continue;
+            end
+            tmp2=cell2mat(s5stroke(i));  
+            s5stroke_trans(i)=tmp2(a,b);
+        end
+        one=s1stroke_trans(idx_dom)
+        two=s5stroke_trans(idx_dom)
+
+        [rho2(a,b), p2(a,b)]=corr((two-one)', fm_5(idx_dom)-fm_1(idx_dom), 'rows', 'complete')
+    end
+end
+imagesc(rho2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

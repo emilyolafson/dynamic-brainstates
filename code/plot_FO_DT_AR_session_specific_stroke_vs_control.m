@@ -1,6 +1,5 @@
 
-figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/5states/figures/'
-resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/5states/'
+figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/shen268/k2/'
 
 %% calculate significant differences between stroke and controls in FO at each itme point.
 clear p
@@ -8,31 +7,26 @@ clear p
 [h,p(2,1),~,~]=ttest2(stroke_FO2(:,1),control_FO2(:,1))
 [h,p(3,1),~,~]=ttest2(stroke_FO3(:,1),control_FO3(:,1))
 [h,p(4,1),~,~]=ttest2(stroke_FO4(:,1),control_FO4(:,1))
-[h,p(5,1),~,~]=ttest2(stroke_FO4(:,1),control_FO4(:,1))
 
 [h,p(1,2),~,~]=ttest2(stroke_FO1(:,2),control_FO1(:,2))
 [h,p(2,2),~,~]=ttest2(stroke_FO2(:,2),control_FO2(:,2))
 [h,p(3,2),~,~]=ttest2(stroke_FO3(:,2),control_FO3(:,2))
 [h,p(4,2),~,~]=ttest2(stroke_FO4(:,2),control_FO4(:,2))
-[h,p(5,2),~,~]=ttest2(stroke_FO4(:,2),control_FO4(:,2))
 
 [h,p(1,3),~,~]=ttest2(stroke_FO1(:,3),control_FO1(:,3))
 [h,p(2,3),~,~]=ttest2(stroke_FO2(:,3),control_FO2(:,3))
 [h,p(3,3),~,~]=ttest2(stroke_FO3(:,3),control_FO3(:,3))
 [h,p(4,3),~,~]=ttest2(stroke_FO4(:,3),control_FO4(:,3))
-[h,p(5,3),~,~]=ttest2(stroke_FO4(:,3),control_FO4(:,3))
 
 [h,p(1,4),~,~]=ttest2(stroke_FO1(:,4),control_FO1(:,4))
 [h,p(2,4),~,~]=ttest2(stroke_FO2(:,4),control_FO2(:,4))
 [h,p(3,4),~,~]=ttest2(stroke_FO3(:,4),control_FO3(:,4))
 [h,p(4,4),~,~]=ttest2(stroke_FO4(:,4),control_FO4(:,4))
-[h,p(5,4),~,~]=ttest2(stroke_FO4(:,3),control_FO4(:,3))
 
 [h,p(1,5),~,~]=ttest2(stroke_FO1(:,5),control_FO1(:,5))
 [h,p(2,5),~,~]=ttest2(stroke_FO2(:,5),control_FO2(:,5))
 [h,p(3,5),~,~]=ttest2(stroke_FO3(:,5),control_FO3(:,5))
 [h,p(4,5),~,~]=ttest2(stroke_FO4(:,5),control_FO4(:,5))
-[h,p(5,5),~,~]=ttest2(stroke_FO4(:,5),control_FO4(:,5))
 
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
@@ -69,6 +63,7 @@ ylabel('Fractional Occupancy')
 title('Session 1')
 yt = get(gca, 'YTick');
 xt = get(gca, 'XTick');
+ylim([0 .6])
 
 old=0
 for i=1:4
@@ -113,6 +108,7 @@ ylabel('Fractional Occupancy')
 title('Session 2')
 yt = get(gca, 'YTick');
 xt = get(gca, 'XTick');
+ylim([0 .6])
 
 
 old=0
@@ -159,6 +155,7 @@ ylabel('Fractional Occupancy')
 title('Session 3')
 yt = get(gca, 'YTick');
 xt = get(gca, 'XTick');
+ylim([0 .6])
 
 old=0
 for i=1:4
@@ -203,6 +200,7 @@ ylabel('Fractional Occupancy')
 title('Session 4')
 yt = get(gca, 'YTick');
 xt = get(gca, 'XTick');
+ylim([0 .6])
 
 
 old=0
@@ -248,6 +246,7 @@ ylabel('Fractional Occupancy')
 title('Session 5')
 yt = get(gca, 'YTick');
 xt = get(gca, 'XTick');
+ylim([0 .6])
 
 old=0
 for i=1:4
@@ -526,6 +525,7 @@ for i=1:5
     [h,p(3,i),~,~]=ttest2(stroke_appearance3(:,i),control_appearance3(:,i))
     [h,p(4,i),~,~]=ttest2(stroke_appearance4(:,i),control_appearance4(:,i))
 end
+
 [h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
 figure('Position', [0 0 500 1500])

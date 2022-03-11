@@ -1,8 +1,8 @@
 %% Step 0: Add paths for FSL, SPM, and keith's matlab_common
 
 if(isempty(which('read_avw')))
-    setenv('FSLDIR','/usr/share/fsl/5.0');
-    addpath('/usr/share/fsl/etc/matlab');
+    setenv('FSLDIR','/usr/local/fsl');
+    addpath('/usr/local/fsl/etc/matlab');
 end
 if(isempty(which('spm_vol')))
     addpath('~/MATLAB_TOOLBOXES/spm12');

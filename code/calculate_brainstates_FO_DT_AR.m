@@ -1,26 +1,68 @@
 
-baselineFM=load('baselineFM.mat');
-baselineFM=baselineFM.basline;
-save('baseline_scores.mat', 'baselineFM')
-
-numscans1_11=[4 3 3 3 3 3 3 3 3 3 3;4 3 3 3 3 3 3 4 3 3 3;3 3 3 3 3 3 3 3 3 3 3;4 4 3 3 3 3 3 3 3 3 3 ; 3 3 3 3 3 0 3 3 3 3 3];
-numscans12_23=[3 3 3 3 3 2 2 2 2 2 2 2; 3 3 3 4 3 2 2 2 2 2 2 2 ;3 3 3 3 3 2 2 2 0 2 2 2;0 3 3 3 3 2 2 2 0 2 2 2;0 3 4 3 3 2 2 2 0 2 2 2];
-nscans = [numscans1_11, numscans12_23];
-nscan = ones(5,24)+4;
-nscans = [nscans, nscan];
 
 %% 
 allsubs=load('data/ts_shenGSR_may29.mat'); 
 allsubs=allsubs.newaverg;
+% 
+% allsubs_stroke=allsubs(1:23,:);
+% allsubs_control=allsubs(24:47,:);
+
 allsubs_fmri=reshape(allsubs', [1 235]); %reshape goes column-wise; all S1 listed, then S2,..
+% allsubs_stroke=reshape(allsubs_stroke', 1,[]); %reshape goes column-wise; all S1 listed, then S2,..
+% allsubs_control=reshape(allsubs_control', 1,[]); %reshape goes column-wise; all S1 listed, then S2,..
 
 % Determine the optimal number of clusters using variance explained
 allsubs_fmri=allsubs_fmri(find(~cellfun(@isempty,allsubs_fmri)))
 allsubs_fmri=allsubs_fmri';
-np= [];
-count=[];
-leng2=[];
+% 
+% allsubs_stroke=allsubs_stroke(find(~cellfun(@isempty,allsubs_stroke)))
+% allsubs_control=allsubs_control(find(~cellfun(@isempty,allsubs_control)))
+% 
+% nps=[]
+% for i=1:109
+%     disp(i)
+%     a=allsubs_stroke{i};
+%     b=cell2mat(a);
+%     leng_original(i)=size(b,1);
+%     if leng_original(i)<200
+%         b=b(1:leng_original(i),:);
+%         count=[count; i];
+%     else %set scans to all have the same length (10 mins)
+%         b=b(1:200,:);
+%     end
+%     leng2(i)=size(b,1);
+%     nps=[nps;b];
+% end
+% 
+% npc=[]
+% for i=1:120
+%     disp(i)
+%     a=allsubs_control{i};
+%     b=cell2mat(a);
+%     leng_original(i)=size(b,1);
+%     if leng_original(i)<200
+%         b=b(1:leng_original(i),:);
+%         count=[count; i];
+%     else %set scans to all have the same length (10 mins)
+%         b=b(1:200,:);
+%     end
+%     leng2(i)=size(b,1);
+%     npc=[npc;b];
+% end
+% 
+% 
+% strokedata=nps;
+% controldata=npc;
+% 
+% save strokedata.mat strokedata
+% save controldata.mat controldata
+% 
+% np= [];
 
+count=[];
+leng2=[]
+
+np=[]
 for i=1:229
     disp(i)
     a=allsubs_fmri{i};
@@ -36,9 +78,11 @@ for i=1:229
     np=[np;b];
 end
 
+
+
 np=zscore(np,[],1); % z-score along columns
 
-partition=ones(59147,4)
+partition=ones(45336,4)
 c=1
 l=1
 for i=1:47
@@ -59,158 +103,216 @@ for i=1:47
     end
 end
 %%
-distanceMethod= 'correlation'
-nreps = 50;
-totSum=[];
-
-% should take about 5 mins to run for each cluster #
-clear cluster_output2
-clear sumd
-for i=4:5
-    [cluster_output2(:,i),~,sumd]=kmeans(np,i,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000);
-    totSum(i)=sum(sumd);
-end
-
-% Elbow plots
-for i=1:12
-  disp(num2str(i))
-  [~,~,sumd]=kmeans(np,i); %sumd= within-cluster sums of point-to-centroid distances
-  totSum(i)=sum(sumd); % Inertia
-  avgDist(i)=mean(sumd); % Distortion
-end
-
-
-
-% plot cluster quality
-close all;
-plot(avgDist, 'or')
-hold on;
-plot(avgDist, '-k')
-xticks(1:12)
-xticklabels({"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"})
-xlabel('Number of clusters')
-ylabel({'Average distance between', 'cluster centroid & member point'})
-set(gca, 'FontSize', 15)
-
-
-%% once the number of clusters is determined, find the partition that best represents your clustering (i.e. is most similar to every other randomly initialized clustering)
-numClusters = 4;
-parts = NaN(size(np,1),50);
-sumd=[]
-% maybe takes a while?
-for i=1:50
-    disp(i)
-    [parts(:,i),~,sumd]=kmeans(np,numClusters,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000);
-    disp(sumd)
-end
-save('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
-save('/Users/emilyolafson/GIT/dynamic-brainstates/results/sum_squared_distk4k5.mat', 'totSum')
-save('/Users/emilyolafson/GIT/dynamic-brainstates/results/partitions_k4_50reps.mat', 'parts')
-
-load('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
-
-%% calculate adjusted mutual information for every pair of partitions
-ami_results = NaN(50,50);
-for i=1:50
-    for j=1:50
-        ami_results(i,j) = ami(parts(:,i),parts(:,j));
-    end
-end
-[m,ind] = max(sum(ami_results,1)); %ind corresponds to the partition which has the highest mutual information with all other partitions
-
-% plot
-f = figure;
-
-imagesc(ami_results); title('Adjusted Mutal Information between Partitions'); colorbar;
-axis square; set(gca,'FontSize',8); 
-f.PaperUnits = 'inches';
-f.PaperSize = [4 2];
-f.PaperPosition = [0 0 4 2];
-
-saveas(f,fullfile(savedir,['AMI_k',num2str(numClusters),'.pdf']));
+% distanceMethod= 'correlation'
+% nreps = 50;
+% totSum=[];
+% 
+% % should take about 5 mins to run for each cluster #
+% clear cluster_output2
+% clear sumd
+% for i=4:5
+%     [cluster_output2(:,i),~,sumd]=kmeans(np,i,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000);
+%     totSum(i)=sum(sumd);
+% end
+% 
+% % Elbow plots
+% for i=1:12
+%   disp(num2str(i))
+%   [~,~,sumd]=kmeans(np,i); %sumd= within-cluster sums of point-to-centroid distances
+%   totSum(i)=sum(sumd); % Inertia
+%   avgDist(i)=mean(sumd); % Distortion
+% end
+% 
+% 
+% 
+% % plot cluster quality
+% close all;
+% plot(avgDist, 'or')
+% hold on;
+% plot(avgDist, '-k')
+% xticks(1:12)
+% xticklabels({"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"})
+% xlabel('Number of clusters')
+% ylabel({'Average distance between', 'cluster centroid & member point'})
+% set(gca, 'FontSize', 15)
+% 
+% 
+% %% once the number of clusters is determined, find the partition that best represents your clustering (i.e. is most similar to every other randomly initialized clustering)
+% numClusters = 5;
+% nreps=10
+% parts = NaN(size(np,1),10);
+% sumd=[]
+% % maybe takes a while?
+% for i=1:10
+%     disp(i)
+%     [parts(:,i),~,sumd]=kmeans(np,numClusters,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000);
+%     disp(sumd)
+% end
+% 
+% save('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
+% save('/Users/emilyolafson/GIT/dynamic-brainstates/results/sum_squared_distk4k5.mat', 'totSum')
+% save('/Users/emilyolafson/GIT/dynamic-brainstates/results/partitions_k5_10reps.mat', 'parts')
+% 
+% load('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
+% 
+% %% calculate adjusted mutual information for every pair of partitions
+% ami_results = NaN(10,10);
+% for i=1:10
+%     for j=1:10
+%         ami_results(i,j) = ami(parts(:,i),parts(:,j));
+%     end
+% end
+% [m,ind] = max(sum(ami_results,1)); %ind corresponds to the partition which has the highest mutual information with all other partitions
+% 
+% % plot
+% f = figure;
+% 
+% imagesc(ami_results); title('Adjusted Mutal Information between Partitions'); colorbar;
+% axis square; set(gca,'FontSize',8); 
+% f.PaperUnits = 'inches';
+% f.PaperSize = [4 2];
+% f.PaperPosition = [0 0 4 2];
+% 
+% saveas(f,fullfile(savedir,['AMI_k',num2str(numClusters),'.pdf']));
 
 %% Visualize cluster centroids
 % compute centroids and plot
-best_number_of_clusters =5 %define
-
-centroids = GET_CENTROIDS(np,cluster_output2(:,5),best_number_of_clusters);
-atlasblobs_list=load('gummibrain/atlasblobs_saved.mat');
-atlasblobs_list=atlasblobs_list.atlasblobs_list;
-
-whichatlas={'shen268'};
-cmap=colormap(plasma) %matplotlib colormap matlab toolbox
-
-% gummibrain code (need to install from kjamison repo) https://github.com/kjamison/atlasblobs
-results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/results/centroids_5states/'
-for i=1:best_number_of_clusters
-    close all;
-    %cc400_data needs to be a 1x392 vector
-    %shen368 needs to be 1x268
-    data = centroids(:,i);
-    data_min=-0.8;
-    data_max=0.8;
-    img=display_atlas_blobs(data,atlasblobs_list,...
-        'atlasname',whichatlas,...
-        'render',true,...
-        'backgroundimage',false,...
-        'crop',true,...
-        'colormap',cmap,...
-        'alpha', data);
-    %rescale(mean_fi(2,:).^2)
-    %'alpha',rescale(pinv(rescale(abs(cc400_fi')))).^2
-    %'alpha',cc400_t_facealpha
-    %'alpha', rescale(abs(mean_fs86_size_featimp))
-    figure('Position', [0 0 2000 2000]);
-    imshow(img);
-    c=colorbar('SouthOutside', 'fontsize', 20);
-    c.Label.String='Colorbar Label';
-    set(gca,'colormap',cmap);
-    caxis([data_min data_max]);
-    %title('TT', 'fontsize',18);
-   % annotation('textbox',[.835 .38 .1 .2],'String','RH','EdgeColor','none', 'fontsize',20,'color','white')
-   % annotation('textbox',[.12 .38 .1 .2],'String','LH','EdgeColor','none', 'fontsize',20,'color','white')
-   % annotation('textbox',[.45 .9 .1 .04],'String','Lateral','EdgeColor','none', 'fontsize',20,'color','white', 'horizontalalignment','center','backgroundcolor','black')
-   % annotation('textbox',[.45 .21 .1 .04],'String','Medial','EdgeColor','none', 'fontsize',20,'color','white', 'horizontalalignment','center', 'backgroundcolor','black')
-    set(gcf, 'Position', [0 0 2000 2000]);
-    saveas(gcf, strcat(results_dir, '/state', num2str(i), '.png'))
-    pause(2)
-end
-
-  
-% radial plots
-[~,~,~,net8angle] = NAME_CLUSTERS_ANGLE(centroids);
-[up,dn,net8angle_Up,net8angle_Down] = NAME_CLUSTERS_UP_DOWN(centroids)
-YeoNetNames = {'MED FRONT', 'FPN', 'DMN', 'SUB', 'MOTOR', 'VIS I', 'VIS II', 'VIS III'};
-numNets = numel(YeoNetNames);
-
-[nparc,numClusters] = size(centroids);
-clusterColors = GET_CLUSTER_COLORS(numClusters);
-numNets=8
-clusterColors = hex2rgb(clusterColors);
-netAngle = linspace(0,2*pi,numNets+1);
-thetaNames = YeoNetNames; thetaNames{9} = '';
-f=figure('Position', [0 0 900 800]);
-for K = 1:numClusters
-    ax = subplot(1,numClusters,K,polaraxes); hold on
-    polarplot(netAngle,[net8angle_Up(K,:) net8angle_Up(K,1)],'k', 'LineWidth', 3);
-    polarplot(netAngle,[net8angle_Down(K,:) net8angle_Down(K,1)],'r', 'LineWidth', 3);
-    thetaticks(rad2deg(netAngle)); thetaticklabels(thetaNames);
-    rticks([0.4 0.8]); rticklabels({'0.4','0.8'});rlim([0 0.6])
-%     for L = 1:numNets
-%         ax.ThetaTickLabel{L} = sprintf('\\color[rgb]{%f,%f,%f}%s', ...
-%         YeoColors(L,:), ax.ThetaTickLabel{L});
-%     end
-    set(ax,'FontSize',12);
-    %title(overallNames{K},'Color',clusterColors(K,:),'FontSize',8);
-end
-
-
-%% count number of each cluster per scan
-%partition=cluster_output2(:,4)
-clear A
+best_number_of_clusters =4%define
 load('partitions_k4_50reps.mat')
-partition = parts(:,ind); % take partition that has most agreement with all other for further analysis
-partition=cluster_output2(:,5)
+ind=47
+
+partition = parts(:,ind);
+centroids = GET_CENTROIDS(np,partition,best_number_of_clusters);
+
+
+z=1
+l=1
+idxall=zeros(45336,1);
+subj_idxall=zeros(45336,2);
+
+counter=1;
+for i=1:47
+    if i==20
+        nsess=2;
+    elseif i==12
+        nsess=3;
+    elseif i==6
+        nsess=4;
+    else
+        nsess=5;
+    end
+    
+    for j=1:nsess
+         idxall(z:z+leng2(l)-1,:)=counter;
+         subj_idxall(z:z+leng2(l)-1,1)=i;
+         subj_idxall(z:z+leng2(l)-1,2)=j;
+         z=z+leng2(l);
+         l=l+1;
+         counter=counter+1;
+    end    
+end
+
+for i=1:47
+    if i==20
+        nsess=2;
+    elseif i==12
+        nsess=3;
+    elseif i==6
+        nsess=4;
+    else
+        nsess=5;
+    end
+    
+    for j=1:nsess
+        sub_sess_centroids{i,j} = GET_CENTROIDS(np(logical((subj_idxall(:,1)==i).*(subj_idxall(:,2)==j)),:),partition(logical((subj_idxall(:,1)==i).*(subj_idxall(:,2)==j))),best_number_of_clusters);
+    end
+end
+
+
+clear sub_centroids
+for i=1:47
+     sub_centroids{i} = GET_CENTROIDS(np(subj_idxall(:,1)==i,:),partition((subj_idxall(:,1)==i)),best_number_of_clusters);
+end
+% 
+% 
+% atlasblobs_list=load('gummibrain/atlasblobs_saved.mat');
+% atlasblobs_list=atlasblobs_list.atlasblobs_list;
+% 
+% whichatlas={'shen268'};
+% cmap=colormap(plasma) %matplotlib colormap matlab toolbox
+% 
+% % gummibrain code (need to install from kjamison repo) https://github.com/kjamison/atlasblobs
+% results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/results/centroids_5states/'
+% for i=1:best_number_of_clusters
+%     close all;
+%     %cc400_data needs to be a 1x392 vector
+%     %shen368 needs to be 1x268
+%     data = centroids(:,i);
+%     data_min=-0.8;
+%     data_max=0.8;
+%     img=display_atlas_blobs(data,atlasblobs_list,...
+%         'atlasname',whichatlas,...
+%         'render',true,...
+%         'backgroundimage',false,...
+%         'crop',true,...
+%         'colormap',cmap,...
+%         'alpha', data);
+%     %rescale(mean_fi(2,:).^2)
+%     %'alpha',rescale(pinv(rescale(abs(cc400_fi')))).^2
+%     %'alpha',cc400_t_facealpha
+%     %'alpha', rescale(abs(mean_fs86_size_featimp))
+%     figure('Position', [0 0 2000 2000]);
+%     imshow(img);
+%     c=colorbar('SouthOutside', 'fontsize', 20);
+%     c.Label.String='Colorbar Label';
+%     set(gca,'colormap',cmap);
+%     caxis([data_min data_max]);
+%     %title('TT', 'fontsize',18);
+%    % annotation('textbox',[.835 .38 .1 .2],'String','RH','EdgeColor','none', 'fontsize',20,'color','white')
+%    % annotation('textbox',[.12 .38 .1 .2],'String','LH','EdgeColor','none', 'fontsize',20,'color','white')
+%    % annotation('textbox',[.45 .9 .1 .04],'String','Lateral','EdgeColor','none', 'fontsize',20,'color','white', 'horizontalalignment','center','backgroundcolor','black')
+%    % annotation('textbox',[.45 .21 .1 .04],'String','Medial','EdgeColor','none', 'fontsize',20,'color','white', 'horizontalalignment','center', 'backgroundcolor','black')
+%     set(gcf, 'Position', [0 0 2000 2000]);
+%     saveas(gcf, strcat(results_dir, '/state', num2str(i), '.png'))
+%     pause(2)
+% end
+% 
+%   
+% % radial plots
+% [~,~,~,net8angle] = NAME_CLUSTERS_ANGLE(centroids);
+% [up,dn,net8angle_Up,net8angle_Down] = NAME_CLUSTERS_UP_DOWN(centroids)
+% YeoNetNames = {'MED FRONT', 'FPN', 'DMN', 'SUB', 'MOTOR', 'VIS I', 'VIS II', 'VIS III'};
+% numNets = numel(YeoNetNames);
+% overallNames={'MED FRONT', 'FPN', 'DMN', 'SUB', 'MOTOR', 'VIS I', 'VIS II', 'VIS III'};
+% [nparc,numClusters] = size(centroids);
+% clusterColors = GET_CLUSTER_COLORS(numClusters);
+% numNets=8
+% clusterColors = hex2rgb(clusterColors);
+% netAngle = linspace(0,2*pi,numNets+1);
+% thetaNames = YeoNetNames; thetaNames{9} = '';
+% f=figure('Position', [0 0 2200 1500]);
+% for K = 1:numClusters
+%     ax = subplot(1,numClusters,K,polaraxes); hold on
+%     polarplot(netAngle,[net8angle_Up(K,:) net8angle_Up(K,1)],'k', 'LineWidth', 3);
+%     polarplot(netAngle,[net8angle_Down(K,:) net8angle_Down(K,1)],'r', 'LineWidth', 3);
+%     thetaticks(rad2deg(netAngle)); thetaticklabels(thetaNames);
+%     rticks([0.4 0.8]); rticklabels({'0.4','0.8'});rlim([0 0.6])
+% %      for L = 1:numNets
+% %          ax.ThetaTickLabel{L} = sprintf('\\color[rgb]{%f,%f,%f}%s', ...
+% %          YeoColors(L,:), ax.ThetaTickLabel{L});
+% %      end
+%     set(ax,'FontSize',16);
+% %     title(overallNames{K},'Color',clusterColors(K,:),'FontSize',8);
+% end
+% 
+% 
+% %% count number of each cluster per scan
+partition=cluster_output2(:,4)
+ clear A
+load('partitions_k4_50reps.mat')
+ ind=47
+% best_number_of_clusters=4
+ partition = parts(:,ind); % take partition that has most agreement with all other for further analysis
 z=1;
 l=1;
 clear stroke_count
@@ -221,37 +323,38 @@ clear *FO*
 
 k=best_number_of_clusters
 for i=1:47
+    disp(i)
     nsess=5;
     if i==6
         nsess=4;
-        j=5
-        stroke_count_state1{i,j}=[0]
-        stroke_count_state2{i,j}=[0]
-        stroke_count_state3{i,j}=[0]
-        stroke_count_state4{i,j}=[0]
-        stroke_count_state5{i,j}=[0]
+        j=5;
+        stroke_count_state1{i,j}=[0];
+        stroke_count_state2{i,j}=[0];
+        stroke_count_state3{i,j}=[0];
+        stroke_count_state4{i,j}=[0];
+        stroke_count_state5{i,j}=[0];
 
-        stroke_FO1{i,j}=[0]
-        stroke_FO2{i,j}=[0]
-        stroke_FO3{i,j}=[0]
-        stroke_FO4{i,j}=[0]
-        stroke_FO5{i,j}=[0]
+        stroke_FO1{i,j}=[0];
+        stroke_FO2{i,j}=[0];
+        stroke_FO3{i,j}=[0];
+        stroke_FO4{i,j}=[0];
+        stroke_FO5{i,j}=[0];
 
     end
     if i==12
         nsess=3;
         for j=4:5
-            stroke_count_state1{i,j}=[0]
-            stroke_count_state2{i,j}=[0]
-            stroke_count_state3{i,j}=[0]
-            stroke_count_state4{i,j}=[0]
-            stroke_count_state4{i,j}=[0]
+            stroke_count_state1{i,j}=[0];
+            stroke_count_state2{i,j}=[0];
+            stroke_count_state3{i,j}=[0];
+            stroke_count_state4{i,j}=[0];
+            stroke_count_state4{i,j}=[0];
 
-            stroke_FO1{i,j}=[0]
-            stroke_FO2{i,j}=[0]
-            stroke_FO3{i,j}=[0]
-            stroke_FO4{i,j}=[0]
-            stroke_FO5{i,j}=[0]
+            stroke_FO1{i,j}=[0];
+            stroke_FO2{i,j}=[0];
+            stroke_FO3{i,j}=[0];
+            stroke_FO4{i,j}=[0];
+            stroke_FO5{i,j}=[0];
 
         end
     end
@@ -259,21 +362,23 @@ for i=1:47
     if i==20
         nsess=2;
         for j=3:5
-        stroke_count_state1{i,j}=[0]
-        stroke_count_state2{i,j}=[0]
-        stroke_count_state3{i,j}=[0]
-        stroke_count_state4{i,j}=[0]
-        stroke_count_state5{i,j}=[0]
+        stroke_count_state1{i,j}=[0];
+        stroke_count_state2{i,j}=[0];
+        stroke_count_state3{i,j}=[0];
+        stroke_count_state4{i,j}=[0];
+        stroke_count_state5{i,j}=[0];
 
-        stroke_FO1{i,j}=[0]
-        stroke_FO2{i,j}=[0]
-        stroke_FO3{i,j}=[0]
-        stroke_FO4{i,j}=[0]
-        stroke_FO5{i,j}=[0]
+        stroke_FO1{i,j}=[0];
+        stroke_FO2{i,j}=[0];
+        stroke_FO3{i,j}=[0];
+        stroke_FO4{i,j}=[0];
+        stroke_FO5{i,j}=[0];
 
         end
     end
     for j=1:nsess
+        disp(['sess = ', num2str(j)])
+        disp(leng2(l))
         clusters{i,j}=partition(z:z+leng2(l)-1);
         if i<24
             %stroke
@@ -290,15 +395,15 @@ for i=1:47
             stroke_FO4{i,j}=stroke_count_state4{i,j}/clusters2(i,j);
             stroke_FO5{i,j}=stroke_count_state5{i,j}/clusters2(i,j);
 
-            dwell=zeros(size(clusters{i,j},1),1)
+            dwell=zeros(size(clusters{i,j},1),1);
             c=1;
             for k=1:best_number_of_clusters
-                c=1
-                dwell=zeros(size(clusters{i,j},1),1)
+                c=1;
+                dwell=zeros(size(clusters{i,j},1),1);
 
                 timeseries=clusters{i,j};
-                appear=timeseries==k
-                appear=[appear;NaN]
+                appear=timeseries==k;
+                appear=[appear;NaN];
                 for p=1:size(appear,1)-1
                     if appear(p)==0 
                         continue;
@@ -333,15 +438,15 @@ for i=1:47
             control_FO4{i-23,j}=control_count_state4{i-23,j}/clusters2(i,j);
             control_FO5{i-23,j}=control_count_state5{i-23,j}/clusters2(i,j);
 
-            dwell=zeros(size(clusters{i,j},1),1)
+            dwell=zeros(size(clusters{i,j},1),1);
             c=1;
             for k=1:5
-                c=1
-                dwell=zeros(size(clusters{i,j},1),1)
+                c=1;
+                dwell=zeros(size(clusters{i,j},1),1);
 
                 timeseries=clusters{i,j};
-                appear=timeseries==k
-                appear=[appear;NaN]
+                appear=timeseries==k;
+                appear=[appear;NaN];
                 for p=1:size(appear,1)-1
                     if appear(p)==0 
                         continue;
@@ -365,17 +470,19 @@ for i=1:47
     end
 end
 
+
 % transition probabilities.
 %GET_TRANS_PROBS(partition,subjInd,numClusters)
 subjID=[];
 for i=1:size(leng2,2)
     subjID = [subjID; ones(leng2(i), 1)*i];
 end
-[transProbs,transitionProbabilityMats,numTransitions] = GET_TRANS_PROBS(partition,subjID, 5);  
+[transProbs,transitionProbabilityMats,numTransitions] = GET_TRANS_PROBS(partition,subjID, 4);  
 
 [~,nopersist_transitionProbabilityMats] = GET_TRANS_PROBS_NO_PERSIST(partition, subjID);  
 
 nsessions=[1 1 1 1 1 2 2 2 2 2 3 3 3 3 3 4 4 4 4 4 5 5 5 5 5 6 6 6 6 7 7 7 7 7 8 8 8 8 8 9 9 9 9 9 10 10 10 10 10 11 11 11 11 11 12 12 12 13 13 13 13 13 14 14 14 14 14 15 15 15 15 15 16 16 16 16 16 17 17 17 17 17 18 18 18 18 18 19 19 19 19 19 20 20 21 21 21 21 21 22 22 22 22 22 23 23 23 23 23];
+
 vec=[]
 for i=24:47
     vec=[vec;ones(5, 1)*i];
@@ -618,92 +725,77 @@ stroke_count_state1=cell2mat(stroke_count_state1)
 stroke_count_state2=cell2mat(stroke_count_state2)
 stroke_count_state3=cell2mat(stroke_count_state3)
 stroke_count_state4=cell2mat(stroke_count_state4)
-stroke_count_state5=cell2mat(stroke_count_state5)
 
 stroke_FO1=cell2mat(stroke_FO1)
 stroke_FO2=cell2mat(stroke_FO2)
 stroke_FO3=cell2mat(stroke_FO3)
 stroke_FO4=cell2mat(stroke_FO4)
-stroke_FO5=cell2mat(stroke_FO5)
 
 stroke_appearance1=cell2mat(stroke_appearance1)
 stroke_appearance2=cell2mat(stroke_appearance2)
 stroke_appearance3=cell2mat(stroke_appearance3)
 stroke_appearance4=cell2mat(stroke_appearance4)
-stroke_appearance5=cell2mat(stroke_appearance5)
 
 stroke_FO1(20,3)=NaN
 stroke_FO2(20,3)=NaN
 stroke_FO3(20,3)=NaN
 stroke_FO4(20,3)=NaN
-stroke_FO5(20,3)=NaN
 
 stroke_FO1(20,4)=NaN
 stroke_FO2(20,4)=NaN
 stroke_FO3(20,4)=NaN
 stroke_FO4(20,4)=NaN
-stroke_FO5(20,4)=NaN
 
 stroke_FO1(20,5)=NaN
 stroke_FO2(20,5)=NaN
 stroke_FO3(20,5)=NaN
 stroke_FO4(20,5)=NaN
-stroke_FO5(20,5)=NaN
 
 stroke_FO1(12,4)=NaN
 stroke_FO2(12,4)=NaN
 stroke_FO3(12,4)=NaN
 stroke_FO4(12,4)=NaN
-stroke_FO5(12,4)=NaN
 
 stroke_FO1(12,5)=NaN
 stroke_FO2(12,5)=NaN
 stroke_FO3(12,5)=NaN
 stroke_FO4(12,5)=NaN
-stroke_FO5(12,5)=NaN
 
 stroke_FO1(6,5)=NaN
 stroke_FO2(6,5)=NaN
 stroke_FO3(6,5)=NaN
 stroke_FO4(6,5)=NaN
-stroke_FO5(6,5)=NaN
 
 
 stroke_appearance1(20,3)=NaN
 stroke_appearance2(20,3)=NaN
 stroke_appearance3(20,3)=NaN
 stroke_appearance4(20,3)=NaN
-stroke_appearance5(20,3)=NaN
 
 stroke_appearance1(20,4)=NaN
 stroke_appearance2(20,4)=NaN
 stroke_appearance3(20,4)=NaN
 stroke_appearance4(20,4)=NaN
-stroke_appearance5(20,4)=NaN
 
 stroke_appearance1(20,5)=NaN
 stroke_appearance2(20,5)=NaN
 stroke_appearance3(20,5)=NaN
 stroke_appearance4(20,5)=NaN
-stroke_appearance5(20,5)=NaN
 
 stroke_appearance1(12,4)=NaN
 stroke_appearance2(12,4)=NaN
 stroke_appearance3(12,4)=NaN
 stroke_appearance4(12,4)=NaN
-stroke_appearance5(12,4)=NaN
 
 stroke_appearance1(12,5)=NaN
 stroke_appearance2(12,5)=NaN
 stroke_appearance3(12,5)=NaN
 stroke_appearance4(12,5)=NaN
-stroke_appearance5(12,5)=NaN
 
 stroke_appearance1(6,5)=NaN
 stroke_appearance2(6,5)=NaN
 stroke_appearance3(6,5)=NaN
 stroke_appearance4(6,5)=NaN
-stroke_appearance5(6,5)=NaN
 
 dwell_avg_stroke(20,5,:)=NaN
 dwell_avg_stroke(20,4,:)=NaN
@@ -718,17 +810,14 @@ control_count_state1=cell2mat(control_count_state1)
 control_count_state2=cell2mat(control_count_state2)
 control_count_state3=cell2mat(control_count_state3)
 control_count_state4=cell2mat(control_count_state4)
-control_count_state5=cell2mat(control_count_state5)
 
 control_FO1=cell2mat(control_FO1)
 control_FO2=cell2mat(control_FO2)
 control_FO3=cell2mat(control_FO3)
 control_FO4=cell2mat(control_FO4)
-control_FO5=cell2mat(control_FO5)
 
 control_appearance1=cell2mat(control_appearance1)
 control_appearance2=cell2mat(control_appearance2)
 control_appearance3=cell2mat(control_appearance3)
 control_appearance4=cell2mat(control_appearance4)
-control_appearance5=cell2mat(control_appearance5)
 

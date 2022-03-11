@@ -13,6 +13,8 @@ fm_3=fuglmeyer.Var4;
 fm_4=fuglmeyer.Var5;
 fm_5=fuglmeyer.Var6;
 
+
+save('/Users/emilyolafson/GIT/chronic_fm.mat', 'fm_5')
 fm_1(23)=NaN;
 fm_1(22)=NaN;
 fm_3(20)=NaN;
@@ -91,7 +93,6 @@ clear p
 [rho, p(19)]=corr(dwell_avg_stroke(:,5,3), fm_5, 'rows', 'complete')
 [rho, p(20)]=corr(dwell_avg_stroke(:,5,4), fm_5, 'rows', 'complete')
 
-
 %state 1
 dt12=dwell_avg_stroke(:,2,1)-dwell_avg_stroke(:,1,1)
 dt23=dwell_avg_stroke(:,3,1)-dwell_avg_stroke(:,2,1)
@@ -103,6 +104,16 @@ clear p
 [rho,p(2)]=corr(fm23, dt23, 'rows', 'complete')
 [rho,p(3)]=corr(fm34, dt34, 'rows', 'complete')
 [rho,p(4)]=corr(fm45, dt45, 'rows', 'complete')
+
+figure()
+scatter(fm12, dt12, 'ok', 'filled')
+xlabel('Change in Fugl-Meyer scores 1-2 weeks post-stroke')
+ylabel('Change in State 3 dwell time 1-2 weeks post-stroke')
+text(30, -0.4, 'Corr = 0.53, p = 0.013 (unc)', 'FontSize', 14)
+set(gca, 'FontSize', 14)
+lsline
+title('State 3 change in dwell time vs. change in FM')
+[h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
 % state 2
 dt12=dwell_avg_stroke(:,2,2)-dwell_avg_stroke(:,1,2)
@@ -128,16 +139,6 @@ clear p
 [rho,p(3)]=corr(fm34, dt34, 'rows', 'complete')
 [rho,p(4)]=corr(fm45, dt45, 'rows', 'complete')
 
-close all
-figure()
-scatter(fm12, dt12, 'ok', 'filled')
-xlabel('Change in Fugl-Meyer scores 1-2 weeks post-stroke')
-ylabel('Change in State 3 dwell time 1-2 weeks post-stroke')
-text(30, -0.4, 'Corr = 0.53, p = 0.013 (unc)', 'FontSize', 14)
-set(gca, 'FontSize', 14)
-lsline
-title('State 3 change in dwell time vs. change in FM')
-[h, ~, ~, p_adj] = fdr_bh(p, 0.05,'pdep')
 
 
 % state 4

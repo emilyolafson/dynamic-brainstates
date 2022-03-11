@@ -1,9 +1,10 @@
 function retval = display_atlas_blobs(roivals,atlasblobs,varargin)
 % img or fig = display_atlas_blobs(roivals,atlasblobs,'param',value,...)
-
+% 
 % Required inputs:
 % roivals = Rx1 vector with 1 value per ROI in atlasblobs 
 % atlasblobs = struct (or struct array) generated from make_atlas_blobs()
+% 
 % Optional inputs:
 % atlasname = name of atlas to select if atlasblobs is an array
 % colormap = colormap name or Cx3 [r g b] colormap matrix
@@ -25,14 +26,13 @@ args = inputParser;
 args.addParameter('atlasname',[]);
 args.addParameter('colormap',[]);
 args.addParameter('clim',[]);
-args.addParameter('render',true);
+args.addParameter('render',false);
 args.addParameter('roimask',[]);
 args.addParameter('backgroundimage',true);
 args.addParameter('backgroundcolor',[]);
 args.addParameter('surfacesmoothing',1.5);
 args.addParameter('crop',true);
 args.addParameter('alpha',[]);
-img_all=[];
 
 args.parse(varargin{:});
 args = args.Results;
@@ -90,9 +90,12 @@ hemis={'lh','rh'};
 
 hcam=[];
     
+img_all={};
 for h = 1:numel(hemis)
     hemi=hemis{h};
-
+    
+    
+    
     viewnames={'lateral','medial'};
     
     if(strcmpi(hemi,'lh'))
@@ -130,7 +133,6 @@ for h = 1:numel(hemis)
         %patch(ax,struct('vertices',verts_new,'faces',FV.faces),'linestyle','none','facecolor',roicolors(i,:), 'facealpha',args.alpha(i));
             %continue;
         %end
-        roicolors=squeeze(roicolors);
         patch(ax,struct('vertices',verts_new,'faces',FV.faces),'linestyle','none','facecolor',roicolors(i,:), 'facealpha',0.6);
         
         %verts_new=bsxfun(@plus,FVsph.vertices*roiradius(i),roixyz(i,:));
@@ -173,7 +175,7 @@ for h = 1:numel(hemis)
         retval=fig;
         return;
     end
-
+    
     for i = 1:numel(viewpoints)
         view(ax,viewpoints{i});
         if(~isempty(hs))
@@ -186,10 +188,11 @@ for h = 1:numel(hemis)
         
         tmpimgfile=sprintf('%s/atlasblob_%s_%s.png',tmpd,hemi,viewnames{i});
         saveas(fig,tmpimgfile);
-        img_all{end+1}=imread(tmpimgfile);   
+        img_all{end+1}=imread(tmpimgfile);
+        
     end
 end
-%close(fig);
+close(fig);
 rmdir(tmpd,'s');
 
 if(args.crop)
@@ -208,4 +211,4 @@ img_new=[[img_all{1}; img_all{2}] [img_all{3}; img_all{4}]];
 
 
 retval=img_new;
-%imwrite(img_new,sprintf('/Users/emilyolafson/Desktop/%s_allviews.png',args.atlasname));
+%imwrite(img_new,sprintf('~/Downloads/%s_allviews.png',whichatlas));

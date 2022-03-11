@@ -1,9 +1,10 @@
 %% plot results of permutation pvalue testing of transition probabilities
 % generate data with calculate_transition_probabilities.m
 
-figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/figures/'
-resdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/'
+figdir='/Users/emilyolafson/GIT/dynamic-brainstates/results/shen268/k4/'
 close all;
+figure('Position', [0 0 1500 300])
+
 tiledlayout(1,5,'padding', 'none')
 % session 1
 nexttile;imagesc(stats1); colorbar;title('Session 1'); 
@@ -93,10 +94,59 @@ caxis([-3, 3])
 yticks(1:4)
 ylabel('Current state')
 xlabel('Next state')
-colormap(brewermap([],'RdBu'))
+colormap(flipud(brewermap([],'PuOr')))
 set(gca, 'FontSize', 15)
 
-set(gcf, 'Position', [0 0 2000 400])
 
-saveas(gcf,strcat(figdir, 'transitionprobs_strokecontrol.png'))
+saveas(gcf,strcat(figdir, 'transitionprobs_strokecontrol_withrealpersist.png'))
+
+
+
+% plot transition probabilities - averaged across all
+% with persist
+figure('Position', [0 0 1000 500])
+tiledlayout(1,2)
+nexttile;imagesc(stats_all); colorbar; 
+colormap(flipud(brewermap([],'PuOr')))
+
+signif=p_adj_all<0.05
+[rows,cols]=find(signif)
+for i=1:size(rows,1)
+    text(cols(i)-0.1,rows(i)+0.05, '**', 'FontSize', 30, 'Color', 'white')
+end
+signif=(p_all<0.05)-(p_adj_all<0.05)
+[rows,cols]=find(signif)
+for i=1:size(rows,1)
+    text(cols(i)-0.01,rows(i)+0.05, '*', 'FontSize', 30, 'Color', 'white')
+end
+caxis([-3, 3])
+yticks(1:4)
+ylabel('Current state')
+xlabel('Next state')
+set(gca, 'FontSize', 20)
+xticks(1:4)
+
+saveas(gcf,strcat(figdir, 'transitionprobs_strokecontrol_withrealpersist_avg.png'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

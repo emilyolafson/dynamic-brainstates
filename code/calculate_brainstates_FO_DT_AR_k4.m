@@ -133,7 +133,9 @@ saveas(f,fullfile(savedir,['AMI_k',num2str(numClusters),'.pdf']));
 % compute centroids and plot
 best_number_of_clusters =4 %define
 
-centroids = GET_CENTROIDS(np,cluster_output2(:,4),best_number_of_clusters);
+centroids = GET_CENTROIDS(np,partition,best_number_of_clusters);
+save('/Users/emilyolafson/GIT/dynamic-brainstates/transition_energies/centroids.mat', 'centroids')
+
 atlasblobs_list=load('gummibrain/atlasblobs_saved.mat');
 atlasblobs_list=atlasblobs_list.atlasblobs_list;
 
@@ -208,6 +210,7 @@ end
 %% count number of each cluster per scan
 %partition=cluster_output2(:,4)
 clear A
+ind=47;
 load('partitions_k4_50reps.mat')
 partition = parts(:,ind); % take partition that has most agreement with all other for further analysis
 
@@ -361,7 +364,7 @@ subjID=[];
 for i=1:size(leng2,2)
     subjID = [subjID; ones(leng2(i), 1)*i];
 end
-[transProbs,transitionProbabilityMats,numTransitions] = GET_TRANS_PROBS(partition,subjID, 5);  
+[transProbs,transitionProbabilityMats,numTransitions] = GET_TRANS_PROBS(partition,subjID, 4);  
 
 [~,nopersist_transitionProbabilityMats] = GET_TRANS_PROBS_NO_PERSIST(partition, subjID);  
 
@@ -376,7 +379,7 @@ for i=1:47
     vec=nsessions==i;
     tmp=transitionProbabilityMats(vec,:,:);
     for j=1:size(tmp,1) %nsessions
-        for p=1:5
+        for p=1:4
             tran_prob{i,j}=squeeze(tmp(j,:,:));
         end
     end
@@ -386,7 +389,7 @@ for i=1:47
     vec=nsessions==i;
     tmp=nopersist_transitionProbabilityMats(vec,:,:);
     for j=1:size(tmp,1) %nsessions
-        for p=1:5
+        for p=1:4
             tran_prob_nopersist{i,j}=squeeze(tmp(j,:,:));
         end
     end
@@ -618,12 +621,21 @@ stroke_FO3(20,3)=NaN
 stroke_FO4(20,3)=NaN
 stroke_FO5(20,3)=NaN
 
+stroke_FO1(6,5)=NaN
+stroke_FO2(6,5)=NaN
+stroke_FO3(6,5)=NaN
+stroke_FO4(6,5)=NaN
+
+
 stroke_FO1(20,4)=NaN
 stroke_FO2(20,4)=NaN
 stroke_FO3(20,4)=NaN
 stroke_FO4(20,4)=NaN
-stroke_FO5(20,4)=NaN
 
+stroke_FO1(20,5)=NaN
+stroke_FO2(20,5)=NaN
+stroke_FO3(20,5)=NaN
+stroke_FO4(20,5)=NaN
 
 stroke_FO1(12,4)=NaN
 stroke_FO2(12,4)=NaN
@@ -631,6 +643,10 @@ stroke_FO3(12,4)=NaN
 stroke_FO4(12,4)=NaN
 stroke_FO5(12,4)=NaN
 
+stroke_FO1(12,5)=NaN
+stroke_FO2(12,5)=NaN
+stroke_FO3(12,5)=NaN
+stroke_FO4(12,5)=NaN
 
 stroke_appearance1(20,3)=NaN
 stroke_appearance2(20,3)=NaN
@@ -644,11 +660,29 @@ stroke_appearance3(20,4)=NaN
 stroke_appearance4(20,4)=NaN
 stroke_appearance5(20,4)=NaN
 
+stroke_appearance1(20,5)=NaN
+stroke_appearance2(20,5)=NaN
+stroke_appearance3(20,5)=NaN
+stroke_appearance4(20,5)=NaN
+stroke_appearance5(20,4)=NaN
+
+
 stroke_appearance1(12,4)=NaN
 stroke_appearance2(12,4)=NaN
 stroke_appearance3(12,4)=NaN
 stroke_appearance4(12,4)=NaN
 stroke_appearance5(12,4)=NaN
+
+stroke_appearance1(12,5)=NaN
+stroke_appearance2(12,5)=NaN
+stroke_appearance3(12,5)=NaN
+stroke_appearance4(12,5)=NaN
+
+
+stroke_appearance1(6,5)=NaN
+stroke_appearance2(6,5)=NaN
+stroke_appearance3(6,5)=NaN
+stroke_appearance4(6,5)=NaN
 
 dwell_avg_stroke(20,5,:)=NaN
 dwell_avg_stroke(20,4,:)=NaN

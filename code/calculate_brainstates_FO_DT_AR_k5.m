@@ -36,6 +36,8 @@ for i=1:229
     np=[np;b];
 end
 
+imagesc(np(2600:2800,:));colormap plasma; caxis([-6 6])
+
 np=zscore(np,[],1); % z-score along columns
 
 partition=ones(59147,4)
@@ -58,56 +60,56 @@ for i=1:47
         l=l+1;
     end
 end
-%%
-distanceMethod= 'correlation'
-nreps = 50;
-totSum=[];
-
-% should take about 5 mins to run for each cluster #
-clear cluster_output2
-clear sumd
-for i=4:5
-    [cluster_output2(:,i),~,sumd]=kmeans(np,i,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000);
-    totSum(i)=sum(sumd);
-end
-
-% Elbow plots
-for i=1:12
-  disp(num2str(i))
-  [~,~,sumd]=kmeans(np,i); %sumd= within-cluster sums of point-to-centroid distances
-  totSum(i)=sum(sumd); % Inertia
-  avgDist(i)=mean(sumd); % Distortion
-end
-
-
-
-% plot cluster quality
-close all;
-plot(avgDist, 'or')
-hold on;
-plot(avgDist, '-k')
-xticks(1:12)
-xticklabels({"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"})
-xlabel('Number of clusters')
-ylabel({'Average distance between', 'cluster centroid & member point'})
-set(gca, 'FontSize', 15)
-
-
-%% once the number of clusters is determined, find the partition that best represents your clustering (i.e. is most similar to every other randomly initialized clustering)
-numClusters = 4;
-parts = NaN(size(np,1),50);
-sumd=[]
-% maybe takes a while?
-for i=1:50
-    disp(i)
-    [parts(:,i),~,sumd]=kmeans(np,numClusters,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000);
-    disp(sumd)
-end
-save('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
-save('/Users/emilyolafson/GIT/dynamic-brainstates/results/sum_squared_distk4k5.mat', 'totSum')
-save('/Users/emilyolafson/GIT/dynamic-brainstates/results/partitions_k4_50reps.mat', 'parts')
-
-load('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
+% %%
+% distanceMethod= 'correlation'
+% nreps = 50;
+% totSum=[];
+% 
+% % should take about 5 mins to run for each cluster #
+% clear cluster_output2
+% clear sumd
+% for i=4:5
+%     [cluster_output2(:,i),~,sumd]=kmeans(np,i,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000);
+%     totSum(i)=sum(sumd);
+% end
+% 
+% % Elbow plots
+% for i=1:12
+%   disp(num2str(i))
+%   [~,~,sumd]=kmeans(np,i); %sumd= within-cluster sums of point-to-centroid distances
+%   totSum(i)=sum(sumd); % Inertia
+%   avgDist(i)=mean(sumd); % Distortion
+% end
+% 
+% 
+% 
+% % plot cluster quality
+% close all;
+% plot(avgDist, 'or')
+% hold on;
+% plot(avgDist, '-k')
+% xticks(1:12)
+% xticklabels({"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"})
+% xlabel('Number of clusters')
+% ylabel({'Average distance between', 'cluster centroid & member point'})
+% set(gca, 'FontSize', 15)
+% 
+% 
+% %% once the number of clusters is determined, find the partition that best represents your clustering (i.e. is most similar to every other randomly initialized clustering)
+% numClusters = 5;
+% parts = NaN(size(np,1),20);
+% sumd=[]
+% % maybe takes a while?
+% for i=1:20
+%     disp(i)
+%     [parts(:,i),~,sumd]=kmeans(np,numClusters,'Distance', distanceMethod,'Replicates',nreps,'MaxIter',1000)
+% end
+% save('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
+% save('/Users/emilyolafson/GIT/dynamic-brainstates/results/sum_squared_distk4k5.mat', 'totSum')
+% 
+% save('/Users/emilyolafson/GIT/dynamic-brainstates/results/partitions_k5_20reps.mat', 'parts')
+% 
+c=load('/Users/emilyolafson/GIT/dynamic-brainstates/results/cluster_output_k4k5.mat', 'cluster_output2')
 
 %% calculate adjusted mutual information for every pair of partitions
 ami_results = NaN(50,50);
@@ -118,15 +120,15 @@ for i=1:50
 end
 [m,ind] = max(sum(ami_results,1)); %ind corresponds to the partition which has the highest mutual information with all other partitions
 
-% plot
-f = figure;
-
-imagesc(ami_results); title('Adjusted Mutal Information between Partitions'); colorbar;
-axis square; set(gca,'FontSize',8); 
-f.PaperUnits = 'inches';
-f.PaperSize = [4 2];
-f.PaperPosition = [0 0 4 2];
-
+% % plot
+% f = figure;
+% 
+% imagesc(ami_results); title('Adjusted Mutal Information between Partitions'); colorbar;
+% axis square; set(gca,'FontSize',8); 
+% f.PaperUnits = 'inches';
+% f.PaperSize = [4 2];
+% f.PaperPosition = [0 0 4 2];
+% 
 saveas(f,fullfile(savedir,['AMI_k',num2str(numClusters),'.pdf']));
 
 %% Visualize cluster centroids
@@ -138,10 +140,11 @@ atlasblobs_list=load('gummibrain/atlasblobs_saved.mat');
 atlasblobs_list=atlasblobs_list.atlasblobs_list;
 
 whichatlas={'shen268'};
-cmap=colormap(plasma) %matplotlib colormap matlab toolbox
+cmap=flipud(colormap(brewermap([],'RdBu')))
+ %matplotlib colormap matlab toolbox
 
 % gummibrain code (need to install from kjamison repo) https://github.com/kjamison/atlasblobs
-results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/results/centroids_5states/'
+results_dir='/Users/emilyolafson/GIT/dynamic-brainstates/results/shen268/k5'
 for i=1:best_number_of_clusters
     close all;
     %cc400_data needs to be a 1x392 vector
@@ -172,13 +175,13 @@ for i=1:best_number_of_clusters
    % annotation('textbox',[.45 .9 .1 .04],'String','Lateral','EdgeColor','none', 'fontsize',20,'color','white', 'horizontalalignment','center','backgroundcolor','black')
    % annotation('textbox',[.45 .21 .1 .04],'String','Medial','EdgeColor','none', 'fontsize',20,'color','white', 'horizontalalignment','center', 'backgroundcolor','black')
     set(gcf, 'Position', [0 0 2000 2000]);
-    saveas(gcf, strcat(results_dir, '/state', num2str(i), '.png'))
+    saveas(gcf, strcat(results_dir, '/k5_state', num2str(i), '.png'))
     pause(2)
 end
 
   
 % radial plots
-[~,~,~,net8angle] = NAME_CLUSTERS_ANGLE(centroids);
+[~,net8angle] = NAME_CLUSTERS_ANGLE(centroids);
 [up,dn,net8angle_Up,net8angle_Down] = NAME_CLUSTERS_UP_DOWN(centroids)
 YeoNetNames = {'MED FRONT', 'FPN', 'DMN', 'SUB', 'MOTOR', 'VIS I', 'VIS II', 'VIS III'};
 numNets = numel(YeoNetNames);
@@ -192,8 +195,8 @@ thetaNames = YeoNetNames; thetaNames{9} = '';
 f=figure('Position', [0 0 900 800]);
 for K = 1:numClusters
     ax = subplot(1,numClusters,K,polaraxes); hold on
-    polarplot(netAngle,[net8angle_Up(K,:) net8angle_Up(K,1)],'k', 'LineWidth', 3);
-    polarplot(netAngle,[net8angle_Down(K,:) net8angle_Down(K,1)],'r', 'LineWidth', 3);
+    polarplot(netAngle,[net8angle_Up(K,:) net8angle_Up(K,1)],'r', 'LineWidth', 2);
+    polarplot(netAngle,[net8angle_Down(K,:) net8angle_Down(K,1)],'b', 'LineWidth', 2);
     thetaticks(rad2deg(netAngle)); thetaticklabels(thetaNames);
     rticks([0.4 0.8]); rticklabels({'0.4','0.8'});rlim([0 0.6])
 %     for L = 1:numNets
@@ -203,13 +206,11 @@ for K = 1:numClusters
     set(ax,'FontSize',12);
     %title(overallNames{K},'Color',clusterColors(K,:),'FontSize',8);
 end
-
-
 %% count number of each cluster per scan
 %partition=cluster_output2(:,4)
 clear A
-load('partitions_k4_50reps.mat')
-partition = parts(:,ind); % take partition that has most agreement with all other for further analysis
+best_number_of_clusters=5;
+load('cluster_output_k4k5.mat')
 partition=cluster_output2(:,5)
 z=1;
 l=1;
@@ -614,11 +615,7 @@ end
 % Set data to 0 when subjects missing fmri
 
 %stroke
-stroke_count_state1=cell2mat(stroke_count_state1)
-stroke_count_state2=cell2mat(stroke_count_state2)
-stroke_count_state3=cell2mat(stroke_count_state3)
-stroke_count_state4=cell2mat(stroke_count_state4)
-stroke_count_state5=cell2mat(stroke_count_state5)
+
 
 stroke_FO1=cell2mat(stroke_FO1)
 stroke_FO2=cell2mat(stroke_FO2)
@@ -713,11 +710,7 @@ dwell_avg_stroke(12,4,:)=NaN
 dwell_avg_stroke(12,5,:)=NaN
 
 %controls
-control_count_state1=cell2mat(control_count_state1)
-control_count_state2=cell2mat(control_count_state2)
-control_count_state3=cell2mat(control_count_state3)
-control_count_state4=cell2mat(control_count_state4)
-control_count_state5=cell2mat(control_count_state5)
+
 
 control_FO1=cell2mat(control_FO1)
 control_FO2=cell2mat(control_FO2)
@@ -730,4 +723,7 @@ control_appearance2=cell2mat(control_appearance2)
 control_appearance3=cell2mat(control_appearance3)
 control_appearance4=cell2mat(control_appearance4)
 control_appearance5=cell2mat(control_appearance5)
+
+
+
 
