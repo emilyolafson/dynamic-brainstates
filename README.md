@@ -1,6 +1,6 @@
 # Brain activity states in pontine stroke
 
-![](methods_kmeans.png)
+![](methods_kmeans2.png)
 
 This repository contains code to cluster BOLD timeseries data into clusters and to calculate brain dynamics parameters (FO = fractional occupancy, DT = dwell time, AR = appearance rate), based on the paper by Cornblath et al.:
 
