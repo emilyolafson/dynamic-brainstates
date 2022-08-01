@@ -205,49 +205,5 @@ t([2,14,15],:) = [];
 writetable(t, '/Users/emilyolafson/GIT/dynamic-brainstates/data/datatable_state4_FO_session5_withabsD.csv')
 
 
-%%
-figure
-plot(dwell_avg_stroke(:,:,2)')
-
-[rho, p]=corr(dwell_avg_stroke(:,:,2), fmall, 'rows', 'complete')
-
-d5=dwell_avg_stroke(:,5,2);
-d1=dwell_avg_stroke(:,1,2);
-
-corr(d1, d5, 'rows', 'complete')
-
-
-[h, p, ci, stats]=ttest2(fm_1(idx_dom),fm_1(idx_ndom))
-
-
-[rho,p]=corr(d1(idx_dom), fm_1(idx_dom), 'rows', 'complete')
-
-
-figure('Position', [0 0 500 500])
-scatter(d1(idx_dom), fm_1(idx_dom), 50, 'k', 'filled')
-ylim([-1, 100])
-xlabel('State 2 (FPN+) dwell time (1 week post-stroke) ')
-ylabel('Fugl-Meyer score (1 week post-stroke) ')
-set(gca, 'FontSize', 15)
-lsline
-text(1.45, 90, {'Corr. = 0.672', 'p = 0.0475'}, 'FontSize', 15)
-
-
-%%
-
-resid=residuals(fitlm(dwell_avg_stroke(:,5,1)~dwell_avg_stroke(:,1,1)))
-
-
-m2-0.7m1
-
-regression(m2-0.7m1 ~ resid)
-
-look at coefficient. get confidence interval from isaac.
-
-% everyone on avg recoverys 70% motor, but each person maybe gets a little
-% better or worse; how much better or worse than they did and whether that
-% correlates with the change in b2-b1 
-
-%correlation between the variances
-
+%
 
